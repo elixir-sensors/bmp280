@@ -1,5 +1,8 @@
 # BMP280
 
+[![Hex version](https://img.shields.io/hexpm/v/bmp280.svg "Hex version")](https://hex.pm/packages/bmp280)
+[![CircleCI](https://circleci.com/gh/fhunleth/bmp280.svg?style=svg)](https://circleci.com/gh/fhunleth/bmp280)
+
 Read temperature and pressure measurements from a [Bosch
 BMP280](https://www.bosch-sensortec.com/products/environmental-sensors/pressure-sensors/pressure-sensors-bmp280-1.html)
 sensor in Elixir.
