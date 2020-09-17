@@ -10,16 +10,37 @@ defmodule BMP280 do
   sensor in Elixir.
   """
 
+  @typedoc """
+  BMP280 GenServer start_link options
+
+  * `:name` - a name for the GenServer
+  * `:bus_name` - which I2C bus to use (e.g., `"i2c-1"`)
+  * `:bus_address` - the address of the BMP280 (defaults to 0x77)
+  * `:sea_level_pa` - a starting estimate for the sea level pressure in Pascals
+  """
+  @type options() :: [
+          name: GenServer.name(),
+          bus_name: String.t(),
+          bus_address: Circuits.I2C.address(),
+          sea_level_pa: number()
+        ]
+
   @doc """
   Start a new GenServer for interacting with a BMP280
+
+  Normally, you'll want to pass the `:bus_name` option to specify the I2C
+  bus going to the BMP280.
   """
-  @spec start_link(Keyword.t()) :: GenServer.on_start()
+  @spec start_link(options()) :: GenServer.on_start()
   def start_link(init_arg) do
-    GenServer.start_link(__MODULE__, init_arg)
+    options = Keyword.take(init_arg, [:name])
+    GenServer.start_link(__MODULE__, init_arg, options)
   end
 
   @doc """
   Read the current temperature, pressure, altitude
+
+  An error is return if the I2C transactions fail.
   """
   @spec read(GenServer.server()) :: {:ok, Measurement.t()} | {:error, any()}
   def read(server) do
@@ -44,6 +65,9 @@ defmodule BMP280 do
   the sea level pressure changes based on the weather, it needs to be kept up to date
   or altitude measurements can be pretty far off. Another way to set the sea level pressure
   is to report a known altitude. Call this function with the current altitude in meters.
+
+  This function returns an error if the attempt to sample the current barometric
+  pressure fails.
   """
   @spec force_altitude(GenServer.server(), number()) :: :ok | {:error, any()}
   def force_altitude(server, altitude_m) do
@@ -51,10 +75,18 @@ defmodule BMP280 do
   end
 
   @impl GenServer
-  def init([]) do
-    {:ok, transport} = Transport.open("i2c-1")
+  def init(args) do
+    bus_name = Keyword.get(args, :bus_name, "i2c-1")
+    bus_address = Keyword.get(args, :address, 0x77)
 
-    state = %{transport: transport, calibration: nil, sea_level_pa: @sea_level_pa}
+    {:ok, transport} = Transport.open(bus_name, bus_address)
+
+    state = %{
+      transport: transport,
+      calibration: nil,
+      sea_level_pa: Keyword.get(args, :sea_level_pa, @sea_level_pa)
+    }
+
     {:ok, state, {:continue, :continue}}
   end
 
