@@ -13,7 +13,7 @@ Add `{:bmp280, "~> 0.1.0"}` to your project's dependencies. Here's an example
 use:
 
 ```elixir
-iex> {:ok, bmp} = BMP280.start_link([])
+iex> {:ok, bmp} = BMP280.start_link(bus_name: "i2c-1", bus_address: 0x77)
 {:ok, \#PID<0.29929.0>}
 iex> BMP280.read(bmp)
 {:ok,
@@ -23,6 +23,9 @@ iex> BMP280.read(bmp)
    temperature_c: 17.373406414553756
  }}
 ```
+
+Depending on your hardware configuration, you may need to modify the call to
+`BMP280.start_link/1`. See `t:BMP280.options/0` for parameters.
 
 All measurements are reported in SI units.
 
