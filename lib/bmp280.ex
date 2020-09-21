@@ -77,7 +77,7 @@ defmodule BMP280 do
   @impl GenServer
   def init(args) do
     bus_name = Keyword.get(args, :bus_name, "i2c-1")
-    bus_address = Keyword.get(args, :address, 0x77)
+    bus_address = Keyword.get(args, :bus_address, 0x77)
 
     {:ok, transport} = Transport.open(bus_name, bus_address)
 
