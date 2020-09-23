@@ -1,8 +1,13 @@
 defmodule BMP280 do
   use GenServer
 
-  alias BMP280.{Calc, Calibration, Measurement, Transport}
-  @sea_level_pa 101_325
+  alias BMP280.{Calc, Calibration, Comm, Measurement, Transport}
+  @sea_level_pa 100_000
+
+  @typedoc """
+  The type of sensor in use.
+  """
+  @type sensor_type() :: :bmp280 | :bme280 | 0..255
 
   @moduledoc """
   Read temperature and pressure measurements from a [Bosch
@@ -35,6 +40,17 @@ defmodule BMP280 do
   def start_link(init_arg) do
     options = Keyword.take(init_arg, [:name])
     GenServer.start_link(__MODULE__, init_arg, options)
+  end
+
+  @doc """
+  Return the type of sensor
+
+  This function returns the cached result of reading the ID register.
+  if the part is recognized. If not, it returns the integer read.
+  """
+  @spec sensor_type(GenServer.server()) :: sensor_type()
+  def sensor_type(server) do
+    GenServer.call(server, :sensor_type)
   end
 
   @doc """
@@ -84,7 +100,8 @@ defmodule BMP280 do
     state = %{
       transport: transport,
       calibration: nil,
-      sea_level_pa: Keyword.get(args, :sea_level_pa, @sea_level_pa)
+      sea_level_pa: Keyword.get(args, :sea_level_pa, @sea_level_pa),
+      sensor_type: nil
     }
 
     {:ok, state, {:continue, :continue}}
@@ -94,6 +111,7 @@ defmodule BMP280 do
   def handle_continue(:continue, state) do
     new_state =
       state
+      |> query_sensor()
       |> send_enable()
       |> read_calibration()
 
@@ -103,7 +121,7 @@ defmodule BMP280 do
   @impl GenServer
   def handle_call(:read, _from, state) do
     rc =
-      case read_raw_samples(state) do
+      case Comm.read_raw_samples(state.transport) do
         {:ok, raw_pressure, raw_temperature} ->
           {:ok,
            Calc.raw_to_measurement(
@@ -120,12 +138,16 @@ defmodule BMP280 do
     {:reply, rc, state}
   end
 
+  def handle_call(:sensor_type, _from, state) do
+    {:reply, state.sensor_type, state}
+  end
+
   def handle_call({:update_sea_level, new_estimate}, _from, state) do
     {:reply, :ok, %{state | sea_level_pa: new_estimate}}
   end
 
   def handle_call({:force_altitude, altitude_m}, _from, state) do
-    case read_raw_samples(state) do
+    case Comm.read_raw_samples(state.transport) do
       {:ok, raw_pressure, raw_temperature} ->
         {:ok,
          m =
@@ -145,38 +167,21 @@ defmodule BMP280 do
     end
   end
 
-  defp send_enable(state) do
-    # normal
-    mode = 3
-    # x2 oversampling
-    osrs_t = 2
-    # x16 oversampling
-    osrs_p = 5
-    ctrl_meas_register = 0xF4
+  defp query_sensor(state) do
+    {:ok, sensor_type} = Comm.sensor_type(state.transport)
 
-    :ok =
-      Transport.write(
-        state.transport,
-        ctrl_meas_register,
-        <<osrs_t::size(3), osrs_p::size(3), mode::size(2)>>
-      )
+    %{state | sensor_type: sensor_type}
+  end
+
+  defp send_enable(state) do
+    :ok = Comm.send_enable(state.transport)
 
     state
   end
 
   defp read_calibration(state) do
-    {:ok, raw} = Transport.read(state.transport, 0x88, 24)
+    {:ok, raw} = Comm.read_calibration(state.transport)
 
     %{state | calibration: Calibration.from_binary(raw)}
-  end
-
-  defp read_raw_samples(state) do
-    case Transport.read(state.transport, 0xF7, 6) do
-      {:ok, <<pressure::size(20), _::size(4), temp::size(20), _::size(4)>>} ->
-        {:ok, pressure, temp}
-
-      {:error, _reason} = error ->
-        error
-    end
   end
 end
