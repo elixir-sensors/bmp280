@@ -19,6 +19,7 @@ iex> BMP280.read(bmp)
 {:ok,
  %BMP280.Measurement{
    altitude_m: 46.60861034844783,
+   humidity_rh: 50.190531261362295,
    pressure_pa: 100766.41878837062,
    temperature_c: 17.373406414553756
  }}
@@ -42,7 +43,7 @@ Subsequent altitude reports should be more accurate until the weather changes.
 
 ## Support for other Bosch barometric sensors
 
-Successors to the BMP280 and BME280 are similar, but not tested yet. If you're
+Successors to the BMP280 and BME280 look similar, but not tested yet. If you're
 using one of them, please help me by either verifying that they work or adding
 support for them.
 

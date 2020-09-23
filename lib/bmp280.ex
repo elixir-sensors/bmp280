@@ -121,14 +121,13 @@ defmodule BMP280 do
   @impl GenServer
   def handle_call(:read, _from, state) do
     rc =
-      case Comm.read_raw_samples(state.transport) do
-        {:ok, raw_pressure, raw_temperature} ->
+      case Comm.read_raw_samples(state.transport, state.sensor_type) do
+        {:ok, raw} ->
           {:ok,
            Calc.raw_to_measurement(
              state.calibration,
              state.sea_level_pa,
-             raw_temperature,
-             raw_pressure
+             raw
            )}
 
         error ->
@@ -147,15 +146,14 @@ defmodule BMP280 do
   end
 
   def handle_call({:force_altitude, altitude_m}, _from, state) do
-    case Comm.read_raw_samples(state.transport) do
-      {:ok, raw_pressure, raw_temperature} ->
+    case Comm.read_raw_samples(state.transport, state.sensor_type) do
+      {:ok, raw} ->
         {:ok,
          m =
            Calc.raw_to_measurement(
              state.calibration,
              state.sea_level_pa,
-             raw_temperature,
-             raw_pressure
+             raw
            )}
 
         sea_level = Calc.sea_level_pressure(m.pressure_pa, altitude_m)
@@ -174,13 +172,13 @@ defmodule BMP280 do
   end
 
   defp send_enable(state) do
-    :ok = Comm.send_enable(state.transport)
+    :ok = Comm.send_enable(state.transport, state.sensor_type)
 
     state
   end
 
   defp read_calibration(state) do
-    {:ok, raw} = Comm.read_calibration(state.transport)
+    {:ok, raw} = Comm.read_calibration(state.transport, state.sensor_type)
 
     %{state | calibration: Calibration.from_binary(raw)}
   end
