@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.2.1
+
+* Bug fixes
+  * Fix `BMP280.detect/2` so that it only probes one I2C bus address.
+
 ## v0.2.0
 
 * New features
