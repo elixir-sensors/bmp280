@@ -2,7 +2,6 @@ defmodule BMP280 do
   use GenServer
 
   alias BMP280.{Calc, Calibration, Comm, Measurement, Transport}
-  alias Circuits.I2C
   @sea_level_pa 100_000
 
   @typedoc """
@@ -92,18 +91,20 @@ defmodule BMP280 do
   end
 
   @doc """
-  Detect if a BMP280 sensor is on the bus.
+  Detect the type of sensor that is located at the I2C address
 
-  The BMP280 can use either 0x76 or 0x77 as its i2c address, so this function will return
-  a list of which address(es) it detects.
+  If the sensor is a known BMP280 or BME280 the response will either contain
+  `:bmp280` or `:bme280`. If the sensor does not report back that it is one of
+  those two types of sensors the return value will contain the id value that was
+  reported back form the sensor.
   """
-  @spec detect(String.t()) :: [0x76 | 0x77]
-  def detect(bus_name) do
-    devices = I2C.detect_devices(bus_name)
-
-    Enum.filter(devices, fn device ->
-      Enum.member?([0x77, 0x76], device)
-    end)
+  @spec detect(String.t(), Circuits.I2C.address()) ::
+          {:ok, sensor_type()} | {:error, any()}
+  def detect(bus_name, bus_address) do
+    with {:ok, transport} <- Transport.open(bus_name, bus_address),
+         {:ok, id} <- Comm.sensor_type(transport) do
+      {:ok, id}
+    end
   end
 
   @impl GenServer
