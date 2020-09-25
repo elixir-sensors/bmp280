@@ -9,7 +9,7 @@ and
 [BME280](https://www.bosch-sensortec.com/products/environmental-sensors/humidity-sensors-bme280/)
 sensors in Elixir.
 
-Add `{:bmp280, "~> 0.1.0"}` to your project's dependencies. Here's an example
+Add `{:bmp280, "~> 0.2.0"}` to your project's dependencies. Here's an example
 use:
 
 ```elixir
