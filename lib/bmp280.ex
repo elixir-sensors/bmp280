@@ -2,6 +2,7 @@ defmodule BMP280 do
   use GenServer
 
   alias BMP280.{Calc, Calibration, Comm, Measurement, Transport}
+  alias Circuits.I2C
   @sea_level_pa 100_000
 
   @typedoc """
@@ -88,6 +89,21 @@ defmodule BMP280 do
   @spec force_altitude(GenServer.server(), number()) :: :ok | {:error, any()}
   def force_altitude(server, altitude_m) do
     GenServer.call(server, {:force_altitude, altitude_m})
+  end
+
+  @doc """
+  Detect if a BMP280 sensor is on the bus.
+
+  The BMP280 can use either 0x76 or 0x77 as its i2c address, so this function will return
+  a list of which address(es) it detects.
+  """
+  @spec detect(String.t()) :: [0x76 | 0x77]
+  def detect(bus_name) do
+    devices = I2C.detect_devices(bus_name)
+
+    Enum.filter(devices, fn device ->
+      Enum.member?([0x77, 0x76], device)
+    end)
   end
 
   @impl GenServer
