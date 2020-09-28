@@ -54,6 +54,7 @@ defmodule BMP280.CalcTest do
     assert_in_delta 26.7460, measurement.temperature_c, 0.0001
     assert_in_delta 100_391.49, measurement.pressure_pa, 0.01
     assert_in_delta 59.2, measurement.humidity_rh, 0.1
+    assert_in_delta 18.1, measurement.dew_point_c, 0.1
   end
 
   test "bme280 2 calculations" do
@@ -63,6 +64,7 @@ defmodule BMP280.CalcTest do
     assert_in_delta 20.2649, measurement.temperature_c, 0.0001
     assert_in_delta 100_278.40, measurement.pressure_pa, 0.01
     assert_in_delta 64.4, measurement.humidity_rh, 0.1
+    assert_in_delta 13.3, measurement.dew_point_c, 0.1
   end
 
   test "altitude calculation" do
@@ -72,5 +74,9 @@ defmodule BMP280.CalcTest do
 
     assert_in_delta altitude, Calc.pressure_to_altitude(current_pa, sea_level_pa), 0.001
     assert_in_delta sea_level_pa, Calc.sea_level_pressure(current_pa, altitude), 0.001
+  end
+
+  test "dew point calculation" do
+    assert_in_delta 14.87, Calc.dew_point(64, 22), 0.01
   end
 end

@@ -18,10 +18,11 @@ iex> {:ok, bmp} = BMP280.start_link(bus_name: "i2c-1", bus_address: 0x77)
 iex> BMP280.read(bmp)
 {:ok,
  %BMP280.Measurement{
-   altitude_m: 46.60861034844783,
-   humidity_rh: 50.190531261362295,
-   pressure_pa: 100766.41878837062,
-   temperature_c: 17.373406414553756
+   altitude_m: 13.842046523689644,
+   dew_point_c: 18.438691684856007,
+   humidity_rh: 51.59938493850065,
+   pressure_pa: 99836.02154563366,
+   temperature_c: 29.444089211523533
  }}
 ```
 

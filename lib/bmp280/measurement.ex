@@ -5,13 +5,14 @@ defmodule BMP280.Measurement do
   This module holds one measurement from the sensor in SI units. Helper functions
   are available non-SI units.
   """
-  defstruct [:temperature_c, :pressure_pa, :altitude_m, :humidity_rh]
+  defstruct [:temperature_c, :pressure_pa, :altitude_m, :humidity_rh, :dew_point_c]
 
   @type t :: %__MODULE__{
           temperature_c: number(),
           pressure_pa: number(),
           altitude_m: number(),
-          humidity_rh: number()
+          humidity_rh: number() | :unknown,
+          dew_point_c: number() | :unknown
         }
 
   @doc """
