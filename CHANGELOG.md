@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.2.2
+
+Note: This release removes the non-SI conversion helper functions. They were
+inconsistently defined, and it seems better for some other library to care more
+about conversions.
+
+* New features
+  * Add dew point approximation
+
 ## v0.2.1
 
 * Bug fixes
