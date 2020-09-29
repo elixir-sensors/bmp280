@@ -9,12 +9,13 @@ and
 [BME280](https://www.bosch-sensortec.com/products/environmental-sensors/humidity-sensors-bme280/)
 sensors in Elixir.
 
-Add `{:bmp280, "~> 0.2.0"}` to your project's dependencies. Here's an example
-use:
+## Usage
+
+Here's an example use:
 
 ```elixir
 iex> {:ok, bmp} = BMP280.start_link(bus_name: "i2c-1", bus_address: 0x77)
-{:ok, \#PID<0.29929.0>}
+{:ok, #PID<0.29929.0>}
 iex> BMP280.read(bmp)
 {:ok,
  %BMP280.Measurement{
@@ -47,4 +48,3 @@ Subsequent altitude reports should be more accurate until the weather changes.
 Successors to the BMP280 and BME280 look similar, but not tested yet. If you're
 using one of them, please help me by either verifying that they work or adding
 support for them.
-

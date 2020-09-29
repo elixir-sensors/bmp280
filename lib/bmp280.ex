@@ -12,10 +12,12 @@ defmodule BMP280 do
   @type sensor_type() :: :bmp280 | :bme280 | 0..255
 
   @moduledoc """
-  Read temperature and pressure measurements from a [Bosch
-  BMP280](https://www.bosch-sensortec.com/products/environmental-sensors/pressure-sensors/pressure-sensors-bmp280-1.html)
-  sensor in Elixir.
-  """
+             Read temperature and pressure from a Bosch BM*280 sensors
+
+             """ <>
+               (File.read!("README.md")
+                |> String.split(~r{\n## .+\n})
+                |> Enum.fetch!(1))
 
   @typedoc """
   BMP280 GenServer start_link options
