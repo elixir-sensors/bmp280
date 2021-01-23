@@ -13,7 +13,7 @@ defmodule BMP280.Calc do
   Convert raw sensor reports to temperature, pressure and altitude measurements
   """
   @spec raw_to_measurement(Calibration.t(), number(), raw()) :: Measurement.t()
-  def raw_to_measurement(%Calibration{} = cal, sea_level_pa, raw) do
+  def raw_to_measurement(cal, sea_level_pa, raw) do
     # Direct calculations
     temp = Calibration.raw_to_temperature(cal, raw.raw_temperature)
     pressure = Calibration.raw_to_pressure(cal, temp, raw.raw_pressure)
