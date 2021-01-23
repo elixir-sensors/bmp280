@@ -202,6 +202,6 @@ defmodule BMP280 do
   defp read_calibration(state) do
     {:ok, raw} = Comm.read_calibration(state.transport, state.sensor_type)
 
-    %{state | calibration: Calibration.from_binary(raw)}
+    %{state | calibration: Calibration.from_binary(state.sensor_type, raw)}
   end
 end

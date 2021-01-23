@@ -3,7 +3,8 @@ defmodule BMP280.CalcTest do
   alias BMP280.Calc
   doctest BMP280.Calc
 
-  @bmp280_calibration %BMP280.Calibration{
+  @bmp280_calibration %{
+    type: :bmp280,
     dig_P1: 36635,
     dig_P2: -10696,
     dig_P3: 3024,
@@ -15,11 +16,11 @@ defmodule BMP280.CalcTest do
     dig_P9: 5000,
     dig_T1: 28189,
     dig_T2: 26285,
-    dig_T3: 50,
-    has_humidity?: false
+    dig_T3: 50
   }
 
-  @bme280_calibration %BMP280.Calibration{
+  @bme280_calibration %{
+    type: :bme280,
     dig_H1: 75,
     dig_H2: 338,
     dig_H3: 0,
@@ -37,11 +38,11 @@ defmodule BMP280.CalcTest do
     dig_P9: 5000,
     dig_T1: 28189,
     dig_T2: 26285,
-    dig_T3: 50,
-    has_humidity?: true
+    dig_T3: 50
   }
 
-  @bme280_calibration2 %BMP280.Calibration{
+  @bme280_calibration2 %{
+    type: :bme280,
     dig_H1: 75,
     dig_H2: 394,
     dig_H3: 0,
@@ -59,8 +60,35 @@ defmodule BMP280.CalcTest do
     dig_P9: 4285,
     dig_T1: 28297,
     dig_T2: 26729,
-    dig_T3: 50,
-    has_humidity?: true
+    dig_T3: 50
+  }
+
+  @bme680_calibration %{
+    type: :bme680,
+    par_gh1: -30,
+    par_gh2: -5969,
+    par_gh3: 18,
+    par_h1: 717,
+    par_h2: 1021,
+    par_h3: 0,
+    par_h4: 45,
+    par_h5: 20,
+    par_h6: 120,
+    par_h7: -100,
+    par_p1: 35395,
+    par_p10: 30,
+    par_p2: -10405,
+    par_p3: 88,
+    par_p4: 4836,
+    par_p5: -118,
+    par_p6: 30,
+    par_p7: 26,
+    par_p8: -765,
+    par_p9: -3367,
+    par_t1: 26195,
+    par_t2: 26290,
+    par_t3: 3,
+    range_switching_error: 243
   }
 
   test "bmp280 calculations" do
@@ -91,6 +119,16 @@ defmodule BMP280.CalcTest do
     assert_in_delta 100_278.40, measurement.pressure_pa, 0.01
     assert_in_delta 64.4, measurement.humidity_rh, 0.1
     assert_in_delta 13.3, measurement.dew_point_c, 0.1
+  end
+
+  test "bme680 calculations" do
+    raw = %{raw_temperature: 480_732, raw_pressure: 393_705, raw_humidity: 16820}
+    measurement = Calc.raw_to_measurement(@bme680_calibration, 100_000, raw)
+
+    assert_in_delta 19.3113, measurement.temperature_c, 0.0001
+    assert_in_delta 100_977.52, measurement.pressure_pa, 0.01
+    assert_in_delta 25.2, measurement.humidity_rh, 0.1
+    assert_in_delta -1.1, measurement.dew_point_c, 0.1
   end
 
   test "altitude calculation" do
