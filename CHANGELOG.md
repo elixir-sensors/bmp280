@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.2.3
+
+* New features
+  * Support temperature, humidity and pressure measurements on the BME680. VOC
+    measurements are not supported yet.
+
 ## v0.2.2
 
 Note: This release removes the non-SI conversion helper functions. They were
