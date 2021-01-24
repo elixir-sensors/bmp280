@@ -30,7 +30,7 @@ defmodule BMP280.MixProject do
   end
 
   defp description do
-    "Use Bosch barometric sensors in Elixir"
+    "Use Bosch BMP280, BME280, and BME680 sensors in Elixir"
   end
 
   defp package do
