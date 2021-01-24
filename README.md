@@ -4,9 +4,10 @@
 [![CircleCI](https://circleci.com/gh/fhunleth/bmp280.svg?style=svg)](https://circleci.com/gh/fhunleth/bmp280)
 
 Read temperature and pressure from Bosch
-[BMP280](https://www.bosch-sensortec.com/products/environmental-sensors/pressure-sensors/pressure-sensors-bmp280-1.html)
+[BMP280](https://www.bosch-sensortec.com/products/environmental-sensors/pressure-sensors/pressure-sensors-bmp280-1.html),
+[BME280](https://www.bosch-sensortec.com/products/environmental-sensors/humidity-sensors-bme280/),
 and
-[BME280](https://www.bosch-sensortec.com/products/environmental-sensors/humidity-sensors-bme280/)
+[BME680](https://www.bosch-sensortec.com/products/environmental-sensors/gas-sensors-bme680/)
 sensors in Elixir.
 
 ## Usage
@@ -45,6 +46,6 @@ Subsequent altitude reports should be more accurate until the weather changes.
 
 ## Support for other Bosch barometric sensors
 
-Successors to the BMP280 and BME280 look similar, but not tested yet. If you're
-using one of them, please help me by either verifying that they work or adding
-support for them.
+Other Bosch sensors tend to look similar, but they have enough differences that
+they do not work yet. If you're using one of them, please help me by either
+verifying that they work or adding support for them.
