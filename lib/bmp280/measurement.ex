@@ -11,6 +11,7 @@ defmodule BMP280.Measurement do
     :altitude_m,
     humidity_rh: :unknown,
     dew_point_c: :unknown,
+    gas_resistance_ohms: :unknown,
     timestamp_ms: :unknown
   ]
 
@@ -20,6 +21,7 @@ defmodule BMP280.Measurement do
           altitude_m: number(),
           humidity_rh: number() | :unknown,
           dew_point_c: number() | :unknown,
+          gas_resistance_ohms: number() | :unknown,
           timestamp_ms: number() | :unknown
         }
 end

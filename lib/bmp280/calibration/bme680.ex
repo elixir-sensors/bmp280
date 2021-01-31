@@ -120,4 +120,101 @@ defmodule BMP280.Calibration.BME680 do
 
     min(100, max(0, h))
   end
+
+  @gas_range_lookup1 {
+    2_147_483_647.0,
+    2_147_483_647.0,
+    2_147_483_647.0,
+    2_147_483_647.0,
+    2_147_483_647.0,
+    2_126_008_810.0,
+    2_147_483_647.0,
+    2_130_303_777.0,
+    2_147_483_647.0,
+    2_147_483_647.0,
+    2_143_188_679.0,
+    2_136_746_228.0,
+    2_147_483_647.0,
+    2_126_008_810.0,
+    2_147_483_647.0,
+    2_147_483_647.0
+  }
+
+  @gas_range_lookup2 {
+    4_096_000_000.0,
+    2_048_000_000.0,
+    1_024_000_000.0,
+    512_000_000.0,
+    255_744_255.0,
+    127_110_228.0,
+    64_000_000.0,
+    32_258_064.0,
+    16_016_016.0,
+    8_000_000.0,
+    4_000_000.0,
+    2_000_000.0,
+    1_000_000.0,
+    500_000.0,
+    250_000.0,
+    125_000.0
+  }
+
+  @spec raw_to_gas_resistance(t(), integer(), integer()) :: float()
+  def raw_to_gas_resistance(%{type: :bme680} = cal, gas_r, gas_range_r)
+      when is_number(gas_r) and is_number(gas_range_r) do
+    var1 = (1340 + 5 * cal.range_switching_error) * elem(@gas_range_lookup1, gas_range_r) / 65536
+
+    var2 = gas_r * 32768 - 16_777_216 + var1
+    var3 = elem(@gas_range_lookup2, gas_range_r) * var1 / 512
+    (var3 + var2 / 2) / var2
+  end
+
+  @doc """
+  Convert the heater temperature into a register code
+  """
+  @spec heater_resistance_code(t(), 200..400, integer()) :: integer()
+  def heater_resistance_code(%{type: :bme680} = cal, heater_temp_c, amb_temp_c) do
+    %{
+      par_gh1: par_gh1,
+      par_gh2: par_gh2,
+      par_gh3: par_gh3,
+      res_heat_range: res_heat_range,
+      res_heat_val: res_heat_val
+    } = cal
+
+    var1 = par_gh1 / 16.0 + 49.0
+    var2 = par_gh2 / 32768.0 * 0.0005 + 0.00235
+    var3 = par_gh3 / 1024.0
+    var4 = var1 * (1.0 + var2 * heater_temp_c)
+    var5 = var4 + var3 * amb_temp_c
+
+    round(
+      3.4 *
+        (var5 * (4.0 / (4.0 + res_heat_range)) *
+           (1.0 /
+              (1.0 +
+                 res_heat_val * 0.002)) - 25)
+    )
+  end
+
+  @doc """
+  Convert the heater duration milliseconds into a register code.
+
+  ## Examples
+
+      iex> BMP280.Calibration.BME680.heater_duration_code(100)
+      89
+      iex> BMP280.Calibration.BME680.heater_duration_code(64)
+      80
+      iex> BMP280.Calibration.BME680.heater_duration_code(63)
+      63
+  """
+  @spec heater_duration_code(1..4032, non_neg_integer()) :: integer()
+  def heater_duration_code(duration, factor \\ 0)
+
+  def heater_duration_code(duration, factor) when duration >= 64 do
+    heater_duration_code(round(duration / 4), factor + 1)
+  end
+
+  def heater_duration_code(duration, factor) when duration < 64, do: duration + factor * 64
 end
