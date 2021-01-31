@@ -6,7 +6,9 @@ defmodule BMP280.Calc do
   @type raw() :: %{
           required(:raw_pressure) => non_neg_integer(),
           required(:raw_temperature) => non_neg_integer(),
-          optional(:raw_humidity) => non_neg_integer()
+          optional(:raw_humidity) => non_neg_integer(),
+          optional(:gas_r) => non_neg_integer(),
+          optional(:gas_range_r) => non_neg_integer()
         }
 
   @doc """
@@ -18,6 +20,7 @@ defmodule BMP280.Calc do
     temp = Calibration.raw_to_temperature(cal, raw.raw_temperature)
     pressure = Calibration.raw_to_pressure(cal, temp, raw.raw_pressure)
     humidity = Calibration.raw_to_humidity(cal, temp, Map.get(raw, :raw_humidity))
+    gas_resistance = Calibration.raw_to_gas_resistance(cal, raw[:gas_r], raw[:gas_range_r])
 
     # Derived calculations
     altitude = pressure_to_altitude(pressure, sea_level_pa)
@@ -29,6 +32,7 @@ defmodule BMP280.Calc do
       altitude_m: altitude,
       humidity_rh: humidity,
       dew_point_c: dew_point,
+      gas_resistance_ohms: gas_resistance,
       timestamp_ms: System.monotonic_time(:millisecond)
     }
   end

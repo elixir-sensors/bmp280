@@ -201,9 +201,26 @@ defmodule BMP280 do
   end
 
   defp init_sensor(%{sensor_type: :bme680} = state) do
-    with :ok <- Comm.BME680.set_oversampling(state.transport),
-         {:ok, raw} <- Comm.BME680.read_calibration(state.transport),
-         do: %{state | calibration: Calibration.from_binary(:bme680, raw)}
+    with :ok <- Comm.reset(state.transport),
+         {:ok, cal_binary} <- Comm.BME680.read_calibration(state.transport),
+         state <- %{state | calibration: Calibration.from_binary(:bme680, cal_binary)},
+         :ok <- Comm.BME680.set_oversampling(state.transport),
+         :ok <- Comm.BME680.set_filter(state.transport),
+         :ok <- enable_gas_sensor(state) do
+      state
+    end
+  end
+
+  defp enable_gas_sensor(state, heater_temp_c \\ 300, heater_duration_ms \\ 100, amb_temp_c \\ 30) do
+    with :ok <- Comm.BME680.enable_gas_sensor(state.transport),
+         heater_resistance_code <-
+           Calibration.BME680.heater_resistance_code(state.calibration, heater_temp_c, amb_temp_c),
+         :ok <- Comm.BME680.set_gas_heater_temperature(state.transport, heater_resistance_code),
+         heater_duration_code <- Calibration.BME680.heater_duration_code(heater_duration_ms),
+         :ok <- Comm.BME680.set_gas_heater_duration(state.transport, heater_duration_code),
+         :ok <- Comm.BME680.set_gas_heater_profile(state.transport, 0) do
+      :ok
+    end
   end
 
   defp read_and_put_new_measurement(state) do

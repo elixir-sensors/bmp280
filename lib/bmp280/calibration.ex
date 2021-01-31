@@ -4,9 +4,9 @@ defmodule BMP280.Calibration do
   @type t() :: __MODULE__.BMP280.t() | __MODULE__.BME280.t() | __MODULE__.BME680.t()
 
   @spec from_binary(BMP280.sensor_type(), binary | tuple) :: t()
-  def from_binary(:bmp280, binary), do: __MODULE__.BMP280.from_binary(binary)
-  def from_binary(:bme280, binary), do: __MODULE__.BME280.from_binary(binary)
-  def from_binary(:bme680, binary), do: __MODULE__.BME680.from_binary(binary)
+  def from_binary(sensor_type, binary) do
+    apply(calibration_module(%{type: sensor_type}), :from_binary, [binary])
+  end
 
   @spec raw_to_temperature(t(), integer()) :: float()
   def raw_to_temperature(cal, raw_temp) do
@@ -24,6 +24,15 @@ defmodule BMP280.Calibration do
       :unknown
     else
       apply(calibration_module(cal), :raw_to_humidity, [cal, temp, raw_humidity])
+    end
+  end
+
+  @spec raw_to_gas_resistance(t(), number(), number()) :: float() | :unknown
+  def raw_to_gas_resistance(cal, gas_r, gas_range_r) do
+    if cal.type == :bme680 do
+      apply(calibration_module(cal), :raw_to_gas_resistance, [cal, gas_r, gas_range_r])
+    else
+      :unknown
     end
   end
 

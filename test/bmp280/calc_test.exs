@@ -99,6 +99,7 @@ defmodule BMP280.CalcTest do
     assert_in_delta 100_391.49, measurement.pressure_pa, 0.01
     assert measurement.humidity_rh == :unknown
     assert measurement.dew_point_c == :unknown
+    assert measurement.gas_resistance_ohms == :unknown
   end
 
   test "bme280 1 calculations" do
@@ -122,13 +123,21 @@ defmodule BMP280.CalcTest do
   end
 
   test "bme680 calculations" do
-    raw = %{raw_temperature: 480_732, raw_pressure: 393_705, raw_humidity: 16820}
+    raw = %{
+      raw_temperature: 480_732,
+      raw_pressure: 393_705,
+      raw_humidity: 16820,
+      gas_r: 119,
+      gas_range_r: 12
+    }
+
     measurement = Calc.raw_to_measurement(@bme680_calibration, 100_000, raw)
 
     assert_in_delta 19.3113, measurement.temperature_c, 0.0001
     assert_in_delta 100_977.52, measurement.pressure_pa, 0.01
     assert_in_delta 25.2, measurement.humidity_rh, 0.1
     assert_in_delta -1.1, measurement.dew_point_c, 0.1
+    assert_in_delta 2308.6565, measurement.gas_resistance_ohms, 0.1
   end
 
   test "altitude calculation" do
