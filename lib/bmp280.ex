@@ -7,9 +7,11 @@ defmodule BMP280 do
   @default_bmp280_bus_address 0x77
 
   @typedoc """
-  The type of sensor in use.
+  The type of sensor in use
+
+  If the sensor is unknown, then number in the parts ID register is used.
   """
-  @type sensor_type() :: :bmp280 | :bme280 | 0..255
+  @type sensor_type() :: :bmp280 | :bme280 | :bme680 | 0..255
 
   @moduledoc """
              Read temperature and pressure from a Bosch BM*280 sensors
