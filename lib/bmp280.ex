@@ -14,12 +14,8 @@ defmodule BMP280 do
   @type sensor_type() :: :bmp280 | :bme280 | :bme680 | 0..255
 
   @moduledoc """
-             Read temperature and pressure from a Bosch BM*280 sensors
-
-             """ <>
-               (File.read!("README.md")
-                |> String.split(~r{\n## .+\n})
-                |> Enum.fetch!(1))
+  Read temperature and pressure from a Bosch BM280, BME280, or BME680 sensor
+  """
 
   @typedoc """
   BMP280 GenServer start_link options
