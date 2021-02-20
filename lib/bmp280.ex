@@ -132,8 +132,7 @@ defmodule BMP280 do
     new_state =
       state
       |> query_sensor()
-      |> send_enable()
-      |> read_calibration()
+      |> init_sensor()
 
     {:noreply, new_state}
   end
@@ -183,6 +182,24 @@ defmodule BMP280 do
       error ->
         {:reply, error, state}
     end
+  end
+
+  defp init_sensor(%{sensor_type: :bmp280} = state) do
+    state
+    |> send_enable()
+    |> read_calibration()
+  end
+
+  defp init_sensor(%{sensor_type: :bme280} = state) do
+    state
+    |> send_enable()
+    |> read_calibration()
+  end
+
+  defp init_sensor(%{sensor_type: :bme680} = state) do
+    state
+    |> send_enable()
+    |> read_calibration()
   end
 
   defp query_sensor(state) do
