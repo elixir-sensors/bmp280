@@ -69,7 +69,7 @@ defmodule BMP280.Calibration do
 
   def from_binary(
         :bme680,
-        {range_switching_error,
+        {res_heat_val, res_heat_range, range_switching_error,
          <<par_t2::little-signed-16, par_t3::signed, _skip8D, par_p1::little-16,
            par_p2::little-signed-16, par_p3::signed, _skip93, par_p4::little-signed-16,
            par_p5::little-signed-16, par_p7::signed, par_p6::signed, _skip9A, _skip9B,
@@ -103,6 +103,8 @@ defmodule BMP280.Calibration do
       par_gh1: par_gh1,
       par_gh2: par_gh2,
       par_gh3: par_gh3,
+      res_heat_val: res_heat_val,
+      res_heat_range: res_heat_range,
       range_switching_error: range_switching_error
     }
   end
