@@ -10,6 +10,8 @@ defmodule BMP280.Comm.BME680 do
   @ctrl_meas_register 0xF4
   @press_msb_register 0x1F
   @gas_r_msb 0x2A
+  @res_heat_range_register 0x02
+  @res_heat_val_register 0x00
   @range_switching_error_register 0x04
   @calibration_block_1 0x8A
   @calibration_block_2 0xE1
@@ -36,10 +38,13 @@ defmodule BMP280.Comm.BME680 do
 
   @spec read_calibration(Transport.t()) :: {:error, any} | {:ok, binary}
   def read_calibration(transport) do
-    with {:ok, <<rse>>} <- Transport.read(transport, @range_switching_error_register, 1),
+    with {:ok, <<res_heat_val>>} <- Transport.read(transport, @res_heat_val_register, 1),
+         {:ok, <<_::2, res_heat_range::2, _::4>>} <-
+           Transport.read(transport, @res_heat_range_register, 1),
+         {:ok, <<rse>>} <- Transport.read(transport, @range_switching_error_register, 1),
          {:ok, first_part} <- Transport.read(transport, @calibration_block_1, 23),
          {:ok, second_part} <- Transport.read(transport, @calibration_block_2, 14) do
-      {:ok, {rse, first_part, second_part}}
+      {:ok, {res_heat_val, res_heat_range, rse, first_part, second_part}}
     end
   end
 

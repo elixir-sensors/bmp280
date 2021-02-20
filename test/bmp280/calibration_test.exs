@@ -86,7 +86,7 @@ defmodule BMP280.CalibrationTest do
 
   test "parse bme680 calibration" do
     raw_calibration =
-      {243,
+      {0, 1, 243,
        <<178, 102, 3, 16, 67, 138, 91, 215, 88, 0, 228, 18, 138, 255, 26, 30, 0, 0, 3, 253, 217,
          242, 30>>, <<63, 221, 44, 0, 45, 20, 120, 156, 83, 102, 175, 232, 226, 18>>}
 
@@ -115,6 +115,8 @@ defmodule BMP280.CalibrationTest do
                par_t1: 26195,
                par_t2: 26290,
                par_t3: 3,
+               res_heat_val: 0,
+               res_heat_range: 1,
                range_switching_error: 243,
                type: :bme680
              }
