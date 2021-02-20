@@ -140,7 +140,7 @@ defmodule BMP280 do
   @impl GenServer
   def handle_call(:read, _from, state) do
     rc =
-      case Comm.read_raw_samples(state.transport, state.sensor_type) do
+      case read_raw_samples(state.transport, state.sensor_type) do
         {:ok, raw} ->
           {:ok,
            Calc.raw_to_measurement(
@@ -165,7 +165,7 @@ defmodule BMP280 do
   end
 
   def handle_call({:force_altitude, altitude_m}, _from, state) do
-    case Comm.read_raw_samples(state.transport, state.sensor_type) do
+    case read_raw_samples(state.transport, state.sensor_type) do
       {:ok, raw} ->
         {:ok,
          m =
@@ -184,39 +184,31 @@ defmodule BMP280 do
     end
   end
 
-  defp init_sensor(%{sensor_type: :bmp280} = state) do
-    state
-    |> send_enable()
-    |> read_calibration()
-  end
-
-  defp init_sensor(%{sensor_type: :bme280} = state) do
-    state
-    |> send_enable()
-    |> read_calibration()
-  end
-
-  defp init_sensor(%{sensor_type: :bme680} = state) do
-    state
-    |> send_enable()
-    |> read_calibration()
-  end
-
   defp query_sensor(state) do
     {:ok, sensor_type} = Comm.sensor_type(state.transport)
 
     %{state | sensor_type: sensor_type}
   end
 
-  defp send_enable(state) do
-    :ok = Comm.send_enable(state.transport, state.sensor_type)
-
-    state
+  defp init_sensor(%{sensor_type: :bmp280} = state) do
+    with :ok <- Comm.BMP280.send_enable(state.transport),
+         {:ok, raw} <- Comm.BMP280.read_calibration(state.transport),
+         do: %{state | calibration: Calibration.from_binary(:bmp280, raw)}
   end
 
-  defp read_calibration(state) do
-    {:ok, raw} = Comm.read_calibration(state.transport, state.sensor_type)
-
-    %{state | calibration: Calibration.from_binary(state.sensor_type, raw)}
+  defp init_sensor(%{sensor_type: :bme280} = state) do
+    with :ok <- Comm.BME280.send_enable(state.transport),
+         {:ok, raw} <- Comm.BME280.read_calibration(state.transport),
+         do: %{state | calibration: Calibration.from_binary(:bme280, raw)}
   end
+
+  defp init_sensor(%{sensor_type: :bme680} = state) do
+    with :ok <- Comm.BME680.send_enable(state.transport),
+         {:ok, raw} <- Comm.BME680.read_calibration(state.transport),
+         do: %{state | calibration: Calibration.from_binary(:bme680, raw)}
+  end
+
+  defp read_raw_samples(transport, :bmp280), do: Comm.BMP280.read_raw_samples(transport)
+  defp read_raw_samples(transport, :bme280), do: Comm.BME280.read_raw_samples(transport)
+  defp read_raw_samples(transport, :bme680), do: Comm.BME680.read_raw_samples(transport)
 end
