@@ -9,7 +9,7 @@ defmodule BMP280.Calibration do
 
   @type t() :: %{type: BMP280.sensor_type()}
 
-  @spec from_binary(BMP280.sensor_type(), <<_::192>> | <<_::248>> | tuple :: BMP280.Calibration.t()
+  @spec from_binary(BMP280.sensor_type(), <<_::192>> | <<_::248>> | tuple) :: BMP280.Calibration.t()
   def from_binary(
         :bmp280,
         <<dig_T1::little-16, dig_T2::little-signed-16, dig_T3::little-signed-16,

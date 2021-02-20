@@ -12,8 +12,8 @@ defmodule BMP280.Comm.BME280 do
   @ctrl_meas_register 0xF4
   @press_msb_register 0xF7
 
-  @spec send_enable(Transport.t()) :: :ok | {:error, any()}
-  def send_enable(transport) do
+  @spec set_oversampling(Transport.t()) :: :ok | {:error, any()}
+  def set_oversampling(transport) do
     # normal
     mode = 3
     # x2 oversampling

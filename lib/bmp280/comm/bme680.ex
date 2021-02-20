@@ -14,8 +14,8 @@ defmodule BMP280.Comm.BME680 do
   @calibration_block_1 0x8A
   @calibration_block_2 0xE1
 
-  @spec send_enable(Transport.t()) :: :ok | {:error, any()}
-  def send_enable(transport) do
+  @spec set_oversampling(Transport.t()) :: :ok | {:error, any()}
+  def set_oversampling(transport) do
     # normal
     mode = 3
     # x2 oversampling

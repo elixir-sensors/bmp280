@@ -191,19 +191,19 @@ defmodule BMP280 do
   end
 
   defp init_sensor(%{sensor_type: :bmp280} = state) do
-    with :ok <- Comm.BMP280.send_enable(state.transport),
+    with :ok <- Comm.BMP280.set_oversampling(state.transport),
          {:ok, raw} <- Comm.BMP280.read_calibration(state.transport),
          do: %{state | calibration: Calibration.from_binary(:bmp280, raw)}
   end
 
   defp init_sensor(%{sensor_type: :bme280} = state) do
-    with :ok <- Comm.BME280.send_enable(state.transport),
+    with :ok <- Comm.BME280.set_oversampling(state.transport),
          {:ok, raw} <- Comm.BME280.read_calibration(state.transport),
          do: %{state | calibration: Calibration.from_binary(:bme280, raw)}
   end
 
   defp init_sensor(%{sensor_type: :bme680} = state) do
-    with :ok <- Comm.BME680.send_enable(state.transport),
+    with :ok <- Comm.BME680.set_oversampling(state.transport),
          {:ok, raw} <- Comm.BME680.read_calibration(state.transport),
          do: %{state | calibration: Calibration.from_binary(:bme680, raw)}
   end
