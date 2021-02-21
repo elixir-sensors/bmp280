@@ -10,18 +10,20 @@ defmodule BMP280.Transport do
 
   @spec open(String.t(), I2C.address()) :: {:ok, t()} | {:error, any()}
   def open(bus_name, address) do
+    address_hex = Integer.to_string(address, 16)
+
     if address_exist?(address) do
       case I2C.open(bus_name) do
         {:ok, i2c} ->
-          Logger.info("Opened connection to address #{address} on bus #{bus_name}")
+          Logger.info("Opened connection to address 0x#{address_hex} on bus #{bus_name}")
           {:ok, %__MODULE__{i2c: i2c, address: address}}
 
         error ->
-          Logger.error("Could not connect to address #{address} on bus #{bus_name}")
+          Logger.error("Could not connect to address 0x#{address_hex} on bus #{bus_name}")
           error
       end
     else
-      Logger.error("Address #{address} not found")
+      Logger.error("Address 0x#{address_hex} not found")
       {:error, :invalid_address}
     end
   end
