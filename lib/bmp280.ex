@@ -28,7 +28,7 @@ defmodule BMP280 do
   @type options() :: [
           name: GenServer.name(),
           bus_name: String.t(),
-          bus_address: Circuits.I2C.address(),
+          bus_address: Transport.address(),
           sea_level_pa: number()
         ]
 
@@ -105,7 +105,7 @@ defmodule BMP280 do
 
   The bus address is likely going to be 0x77 (the default) or 0x76.
   """
-  @spec detect(String.t(), Circuits.I2C.address()) ::
+  @spec detect(String.t(), Transport.address()) ::
           {:ok, sensor_type()} | {:error, any()}
   def detect(bus_name, bus_address \\ @default_bmp280_bus_address) do
     with {:ok, transport} <- Transport.open(bus_name, bus_address) do
