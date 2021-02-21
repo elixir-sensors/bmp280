@@ -56,14 +56,17 @@ defmodule BMP280 do
   end
 
   @doc """
-  Read the current temperature, pressure, altitude
+  Measure the current temperature, pressure, altitude
 
   An error is return if the I2C transactions fail.
   """
-  @spec read(GenServer.server()) :: {:ok, Measurement.t()} | {:error, any()}
-  def read(server) do
-    GenServer.call(server, :read)
+  @spec measure(GenServer.server()) :: {:ok, Measurement.t()} | {:error, any()}
+  def measure(server) do
+    GenServer.call(server, :measure)
   end
+
+  @deprecated "Use BMP280.measure/1 instead"
+  def read(server), do: measure(server)
 
   @doc """
   Update the sea level pressure estimate
@@ -138,7 +141,7 @@ defmodule BMP280 do
   end
 
   @impl GenServer
-  def handle_call(:read, _from, state) do
+  def handle_call(:measure, _from, state) do
     rc =
       case read_raw_samples(state.transport, state.sensor_type) do
         {:ok, raw} ->
