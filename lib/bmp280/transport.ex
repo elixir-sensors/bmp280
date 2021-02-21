@@ -4,9 +4,10 @@ defmodule BMP280.Transport do
   alias Circuits.I2C
 
   defstruct [:i2c, :address]
-  @type t() :: %__MODULE__{i2c: I2C.bus(), address: I2C.address()}
+  @type t() :: %__MODULE__{i2c: I2C.bus(), address: address()}
+  @type address() :: 0x76 | 0x77
 
-  @spec open(String.t(), I2C.address()) :: {:ok, t()} | {:error, any()}
+  @spec open(String.t(), address()) :: {:ok, t()} | {:error, any()}
   def open(bus_name, address) do
     with {:ok, i2c} <- I2C.open(bus_name) do
       {:ok, %__MODULE__{i2c: i2c, address: address}}
