@@ -17,7 +17,7 @@ Here's an example use:
 ```elixir
 iex> {:ok, bmp} = BMP280.start_link(bus_name: "i2c-1", bus_address: 0x77)
 {:ok, #PID<0.29929.0>}
-iex> BMP280.read(bmp)
+iex> BMP280.measure(bmp)
 {:ok,
  %BMP280.Measurement{
    altitude_m: 13.842046523689644,
