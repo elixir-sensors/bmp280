@@ -5,6 +5,7 @@ defmodule BMP280 do
 
   @sea_level_pa 100_000
   @default_bmp280_bus_address 0x77
+  @polling_interval 1000
 
   @typedoc """
   The type of sensor in use
@@ -62,7 +63,7 @@ defmodule BMP280 do
   """
   @spec measure(GenServer.server()) :: {:ok, Measurement.t()} | {:error, any()}
   def measure(server) do
-    GenServer.call(server, :measure)
+    :sys.get_state(server).last_measurement
   end
 
   @deprecated "Use BMP280.measure/1 instead"
@@ -120,45 +121,48 @@ defmodule BMP280 do
 
     {:ok, transport} = Transport.open(bus_name, bus_address)
 
-    state = %{
-      transport: transport,
-      calibration: nil,
-      sea_level_pa: Keyword.get(args, :sea_level_pa, @sea_level_pa),
-      sensor_type: nil
-    }
+    state =
+      %{
+        transport: transport,
+        calibration: nil,
+        sea_level_pa: Keyword.get(args, :sea_level_pa, @sea_level_pa),
+        sensor_type: nil,
+        last_measurement: nil
+      }
+      |> query_sensor()
+      |> init_sensor()
 
     {:ok, state, {:continue, :continue}}
   end
 
   @impl GenServer
   def handle_continue(:continue, state) do
-    new_state =
-      state
-      |> query_sensor()
-      |> init_sensor()
+    send(self(), :schedule_measurement)
 
-    {:noreply, new_state}
+    {:noreply, state}
   end
 
   @impl GenServer
-  def handle_call(:measure, _from, state) do
-    rc =
-      case read_raw_samples(state.transport, state.sensor_type) do
-        {:ok, raw} ->
-          {:ok,
-           Calc.raw_to_measurement(
-             state.calibration,
-             state.sea_level_pa,
-             raw
-           )}
+  def handle_info(:schedule_measurement, state) do
+    Process.send_after(self(), :schedule_measurement, @polling_interval)
 
-        error ->
-          error
-      end
+    case read_raw_samples(state.transport, state.sensor_type) do
+      {:ok, raw} ->
+        measurement =
+          Calc.raw_to_measurement(
+            state.calibration,
+            state.sea_level_pa,
+            raw
+          )
 
-    {:reply, rc, state}
+        {:noreply, %{state | last_measurement: {:ok, measurement}}}
+
+      {:error, _} = error ->
+        {:noreply, %{state | last_measurement: error}}
+    end
   end
 
+  @impl GenServer
   def handle_call(:sensor_type, _from, state) do
     {:reply, state.sensor_type, state}
   end
@@ -168,18 +172,9 @@ defmodule BMP280 do
   end
 
   def handle_call({:force_altitude, altitude_m}, _from, state) do
-    case read_raw_samples(state.transport, state.sensor_type) do
-      {:ok, raw} ->
-        {:ok,
-         m =
-           Calc.raw_to_measurement(
-             state.calibration,
-             state.sea_level_pa,
-             raw
-           )}
-
-        sea_level = Calc.sea_level_pressure(m.pressure_pa, altitude_m)
-
+    case state.last_measurement do
+      {:ok, measurement} ->
+        sea_level = Calc.sea_level_pressure(measurement.pressure_pa, altitude_m)
         {:reply, :ok, %{state | sea_level_pa: sea_level}}
 
       error ->
