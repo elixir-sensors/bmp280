@@ -14,6 +14,7 @@ defmodule BMP280.Comm.BME680 do
   @ctrl_meas_register 0x74
   @gas_r_msb_register 0x2A
   @gas_wait0_register 0x64
+  @meas_status0_register 0x1D
   @press_msb_register 0x1F
   @range_switching_error_register 0x04
   @res_heat_range_register 0x02
@@ -129,6 +130,7 @@ defmodule BMP280.Comm.BME680 do
   @spec read_raw_samples(Transport.t()) :: {:error, any} | {:ok, Calc.raw()}
   def read_raw_samples(transport) do
     with :ok <- set_forced_mode(transport),
+         :ok <- ensure_new_data(transport),
          {:ok, pth} <- Transport.read(transport, @press_msb_register, 8),
          {:ok, gas} <- Transport.read(transport, @gas_r_msb_register, 2),
          <<pressure::20, _::4, temp::20, _::4, humidity::16>> <- pth,
@@ -142,5 +144,19 @@ defmodule BMP280.Comm.BME680 do
          gas_range_r: gas_range_r
        }}
     end
+  end
+
+  defp ensure_new_data(transport) do
+    if new_data?(transport) do
+      :ok
+    else
+      {:error, :data_not_ready}
+    end
+  end
+
+  defp new_data?(transport) do
+    {:ok, binary} = Transport.read(transport, @meas_status0_register, 1)
+    <<new_data0::1, _gas_measuring::1, _measuring::1, _::1, _gas_meas_index0::4>> = binary
+    new_data0 == 1
   end
 end
