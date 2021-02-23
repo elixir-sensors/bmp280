@@ -121,45 +121,28 @@ defmodule BMP280 do
 
     {:ok, transport} = Transport.open(bus_name, bus_address)
 
-    state =
-      %{
-        transport: transport,
-        calibration: nil,
-        sea_level_pa: Keyword.get(args, :sea_level_pa, @sea_level_pa),
-        sensor_type: nil,
-        last_measurement: nil
-      }
-      |> query_sensor()
-      |> init_sensor()
+    state = %{
+      transport: transport,
+      calibration: nil,
+      sea_level_pa: Keyword.get(args, :sea_level_pa, @sea_level_pa),
+      sensor_type: nil,
+      last_measurement: nil
+    }
 
     {:ok, state, {:continue, :continue}}
   end
 
   @impl GenServer
   def handle_continue(:continue, state) do
-    send(self(), :schedule_measurement)
+    new_state =
+      state
+      |> query_sensor()
+      |> init_sensor()
+      |> read_and_put_new_measurement()
 
-    {:noreply, state}
-  end
+    schedule_measurement()
 
-  @impl GenServer
-  def handle_info(:schedule_measurement, state) do
-    Process.send_after(self(), :schedule_measurement, @polling_interval)
-
-    case read_raw_samples(state.transport, state.sensor_type) do
-      {:ok, raw} ->
-        measurement =
-          Calc.raw_to_measurement(
-            state.calibration,
-            state.sea_level_pa,
-            raw
-          )
-
-        {:noreply, %{state | last_measurement: {:ok, measurement}}}
-
-      {:error, _} = error ->
-        {:noreply, %{state | last_measurement: error}}
-    end
+    {:noreply, new_state}
   end
 
   @impl GenServer
@@ -180,6 +163,16 @@ defmodule BMP280 do
       error ->
         {:reply, error, state}
     end
+  end
+
+  @impl GenServer
+  def handle_info(:schedule_measurement, state) do
+    schedule_measurement()
+    {:noreply, read_and_put_new_measurement(state)}
+  end
+
+  defp schedule_measurement() do
+    Process.send_after(self(), :schedule_measurement, @polling_interval)
   end
 
   defp query_sensor(state) do
@@ -204,6 +197,23 @@ defmodule BMP280 do
     with :ok <- Comm.BME680.set_oversampling(state.transport),
          {:ok, raw} <- Comm.BME680.read_calibration(state.transport),
          do: %{state | calibration: Calibration.from_binary(:bme680, raw)}
+  end
+
+  defp read_and_put_new_measurement(state) do
+    case read_raw_samples(state.transport, state.sensor_type) do
+      {:ok, raw} ->
+        measurement =
+          Calc.raw_to_measurement(
+            state.calibration,
+            state.sea_level_pa,
+            raw
+          )
+
+        %{state | last_measurement: {:ok, measurement}}
+
+      error ->
+        %{state | last_measurement: error}
+    end
   end
 
   defp read_raw_samples(transport, :bmp280), do: Comm.BMP280.read_raw_samples(transport)
