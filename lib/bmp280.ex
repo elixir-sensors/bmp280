@@ -1,10 +1,12 @@
 defmodule BMP280 do
   use GenServer
+  require Logger
 
   alias BMP280.{Calc, Calibration, Comm, Measurement, Transport}
 
   @sea_level_pa 100_000
   @default_bmp280_bus_address 0x77
+  @polling_interval 1000
 
   @typedoc """
   The type of sensor in use
@@ -124,7 +126,8 @@ defmodule BMP280 do
       transport: transport,
       calibration: nil,
       sea_level_pa: Keyword.get(args, :sea_level_pa, @sea_level_pa),
-      sensor_type: nil
+      sensor_type: nil,
+      last_measurement: nil
     }
 
     {:ok, state, {:continue, :continue}}
@@ -136,27 +139,20 @@ defmodule BMP280 do
       state
       |> query_sensor()
       |> init_sensor()
+      |> read_and_put_new_measurement()
+
+    schedule_measurement()
 
     {:noreply, new_state}
   end
 
   @impl GenServer
   def handle_call(:measure, _from, state) do
-    rc =
-      case read_raw_samples(state.transport, state.sensor_type) do
-        {:ok, raw} ->
-          {:ok,
-           Calc.raw_to_measurement(
-             state.calibration,
-             state.sea_level_pa,
-             raw
-           )}
-
-        error ->
-          error
-      end
-
-    {:reply, rc, state}
+    if state.last_measurement do
+      {:reply, {:ok, state.last_measurement}, state}
+    else
+      {:reply, {:error, :no_measurement}, state}
+    end
   end
 
   def handle_call(:sensor_type, _from, state) do
@@ -168,23 +164,22 @@ defmodule BMP280 do
   end
 
   def handle_call({:force_altitude, altitude_m}, _from, state) do
-    case read_raw_samples(state.transport, state.sensor_type) do
-      {:ok, raw} ->
-        {:ok,
-         m =
-           Calc.raw_to_measurement(
-             state.calibration,
-             state.sea_level_pa,
-             raw
-           )}
-
-        sea_level = Calc.sea_level_pressure(m.pressure_pa, altitude_m)
-
-        {:reply, :ok, %{state | sea_level_pa: sea_level}}
-
-      error ->
-        {:reply, error, state}
+    if state.last_measurement do
+      sea_level = Calc.sea_level_pressure(state.last_measurement.pressure_pa, altitude_m)
+      {:reply, :ok, %{state | sea_level_pa: sea_level}}
+    else
+      {:reply, {:error, :no_measurement}, state}
     end
+  end
+
+  @impl GenServer
+  def handle_info(:schedule_measurement, state) do
+    schedule_measurement()
+    {:noreply, read_and_put_new_measurement(state)}
+  end
+
+  defp schedule_measurement() do
+    Process.send_after(self(), :schedule_measurement, @polling_interval)
   end
 
   defp query_sensor(state) do
@@ -209,6 +204,24 @@ defmodule BMP280 do
     with :ok <- Comm.BME680.set_oversampling(state.transport),
          {:ok, raw} <- Comm.BME680.read_calibration(state.transport),
          do: %{state | calibration: Calibration.from_binary(:bme680, raw)}
+  end
+
+  defp read_and_put_new_measurement(state) do
+    case read_raw_samples(state.transport, state.sensor_type) do
+      {:ok, raw} ->
+        measurement =
+          Calc.raw_to_measurement(
+            state.calibration,
+            state.sea_level_pa,
+            raw
+          )
+
+        %{state | last_measurement: measurement}
+
+      {:error, reason} ->
+        Logger.error("Error reading measurement: #{inspect(reason)}")
+        state
+    end
   end
 
   defp read_raw_samples(transport, :bmp280), do: Comm.BMP280.read_raw_samples(transport)

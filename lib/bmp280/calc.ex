@@ -28,7 +28,8 @@ defmodule BMP280.Calc do
       pressure_pa: pressure,
       altitude_m: altitude,
       humidity_rh: humidity,
-      dew_point_c: dew_point
+      dew_point_c: dew_point,
+      timestamp_ms: System.monotonic_time(:millisecond)
     }
   end
 

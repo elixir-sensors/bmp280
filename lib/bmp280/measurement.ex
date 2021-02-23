@@ -5,13 +5,21 @@ defmodule BMP280.Measurement do
   The temperature, pressure and relative humidity measurements are computed
   directly from the sensor. All other values are derived.
   """
-  defstruct [:temperature_c, :pressure_pa, :altitude_m, :humidity_rh, :dew_point_c]
+  defstruct [
+    :temperature_c,
+    :pressure_pa,
+    :altitude_m,
+    humidity_rh: :unknown,
+    dew_point_c: :unknown,
+    timestamp_ms: :unknown
+  ]
 
   @type t :: %__MODULE__{
           temperature_c: number(),
           pressure_pa: number(),
           altitude_m: number(),
           humidity_rh: number() | :unknown,
-          dew_point_c: number() | :unknown
+          dew_point_c: number() | :unknown,
+          timestamp_ms: number() | :unknown
         }
 end
