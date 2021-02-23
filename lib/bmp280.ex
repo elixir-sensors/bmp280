@@ -63,7 +63,7 @@ defmodule BMP280 do
   """
   @spec measure(GenServer.server()) :: {:ok, Measurement.t()} | {:error, any()}
   def measure(server) do
-    :sys.get_state(server).last_measurement
+    GenServer.call(server, :measure)
   end
 
   @deprecated "Use BMP280.measure/1 instead"
@@ -146,6 +146,10 @@ defmodule BMP280 do
   end
 
   @impl GenServer
+  def handle_call(:measure, _from, state) do
+    {:reply, state.last_measurement, state}
+  end
+
   def handle_call(:sensor_type, _from, state) do
     {:reply, state.sensor_type, state}
   end
