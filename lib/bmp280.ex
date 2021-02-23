@@ -148,7 +148,11 @@ defmodule BMP280 do
 
   @impl GenServer
   def handle_call(:measure, _from, state) do
-    {:reply, state.last_measurement, state}
+    if state.last_measurement do
+      {:reply, {:ok, state.last_measurement}, state}
+    else
+      {:reply, {:error, :no_measurement}, state}
+    end
   end
 
   def handle_call(:sensor_type, _from, state) do
