@@ -1,5 +1,6 @@
 defmodule BMP280 do
   use GenServer
+  require Logger
 
   alias BMP280.{Calc, Calibration, Comm, Measurement, Transport}
 
@@ -215,8 +216,9 @@ defmodule BMP280 do
 
         %{state | last_measurement: {:ok, measurement}}
 
-      error ->
-        %{state | last_measurement: error}
+      {:error, reason} ->
+        Logger.error("Error reading measurement: #{inspect(reason)}")
+        state
     end
   end
 
