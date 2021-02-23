@@ -160,13 +160,11 @@ defmodule BMP280 do
   end
 
   def handle_call({:force_altitude, altitude_m}, _from, state) do
-    case state.last_measurement do
-      {:ok, measurement} ->
-        sea_level = Calc.sea_level_pressure(measurement.pressure_pa, altitude_m)
-        {:reply, :ok, %{state | sea_level_pa: sea_level}}
-
-      error ->
-        {:reply, error, state}
+    if state.last_measurement do
+      sea_level = Calc.sea_level_pressure(state.last_measurement.pressure_pa, altitude_m)
+      {:reply, :ok, %{state | sea_level_pa: sea_level}}
+    else
+      {:reply, {:error, :no_measurement}, state}
     end
   end
 
@@ -214,7 +212,7 @@ defmodule BMP280 do
             raw
           )
 
-        %{state | last_measurement: {:ok, measurement}}
+        %{state | last_measurement: measurement}
 
       {:error, reason} ->
         Logger.error("Error reading measurement: #{inspect(reason)}")
