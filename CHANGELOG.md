@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.2.4
+
+This release adds support for reading the BME680's gas resistance sensor. In the
+future, this will be converted to an indoor air quality measurement.
+
+* API changes
+  * Sensor measurements are now obtained by calling `BMP280.measure/1` for
+    consistency with other Elixir sensor libraries. `BMP280.read/1` is
+    deprecated.
+
+* Improvements
+  * The library now polls the sensor once a second. Calls to `BMP280.measure/1`
+    return the latest reading rather than making an I2C transaction.
+  * Measurements now include a timestamp (`System.monotonic_time(:millisecond)`)
+  * Various internal code improvements to make it easier to support many Bosch
+    sensors
+
 ## v0.2.3
 
 * New features
