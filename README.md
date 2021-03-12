@@ -12,7 +12,7 @@ sensors in Elixir.
 
 ## Usage
 
-Here's an example use:
+Here's an example use (most sensors are at address 0x77, but some are at 0x76):
 
 ```elixir
 iex> {:ok, bmp} = BMP280.start_link(bus_name: "i2c-1", bus_address: 0x77)
@@ -20,11 +20,13 @@ iex> {:ok, bmp} = BMP280.start_link(bus_name: "i2c-1", bus_address: 0x77)
 iex> BMP280.measure(bmp)
 {:ok,
  %BMP280.Measurement{
-   altitude_m: 13.842046523689644,
-   dew_point_c: 18.438691684856007,
-   humidity_rh: 51.59938493850065,
-   pressure_pa: 99836.02154563366,
-   temperature_c: 29.444089211523533
+   altitude_m: 138.96206905098805,
+   dew_point_c: 2.629181073094435,
+   gas_resistance_ohms: 65538.59364451322,
+   humidity_rh: 34.39681642351278,
+   pressure_pa: 100818.86273677988,
+   temperature_c: 18.645856498100876,
+   timestamp_ms: 885906
  }}
 ```
 
