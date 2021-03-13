@@ -1,13 +1,11 @@
-defmodule BMP280.Comm.BME680 do
+defmodule BMP280.BME680Comm do
   @moduledoc false
 
-  alias BMP280.{Calc, Transport}
+  alias BMP280.{BME680Sensor, Transport}
 
-  @type raw_pressure :: 0..0xFFFFF
-  @type raw_temperature :: 0..0xFFFFF
-
-  @calibration_block_1 0x8A
-  @calibration_block_2 0xE1
+  @coeff1_register 0x8A
+  @coeff2_register 0xE1
+  @coeff3_register 0x00
   @config_register 0x75
   @ctrl_gas1_register 0x71
   @ctrl_hum_register 0x72
@@ -16,9 +14,6 @@ defmodule BMP280.Comm.BME680 do
   @gas_wait0_register 0x64
   @meas_status0_register 0x1D
   @press_msb_register 0x1F
-  @range_switching_error_register 0x04
-  @res_heat_range_register 0x02
-  @res_heat_val_register 0x00
   @res_heat0_register 0x5A
 
   @oversampling_2x 2
@@ -115,33 +110,30 @@ defmodule BMP280.Comm.BME680 do
     end
   end
 
-  @spec read_calibration(Transport.t()) :: {:error, any} | {:ok, binary}
+  @spec read_calibration(Transport.t()) ::
+          {:ok, {<<_::184>>, <<_::112>>, <<_::40>>}} | {:error, any}
   def read_calibration(transport) do
-    with {:ok, <<res_heat_val>>} <- Transport.read(transport, @res_heat_val_register, 1),
-         {:ok, <<_::2, res_heat_range::2, _::4>>} <-
-           Transport.read(transport, @res_heat_range_register, 1),
-         {:ok, <<rse>>} <- Transport.read(transport, @range_switching_error_register, 1),
-         {:ok, first_part} <- Transport.read(transport, @calibration_block_1, 23),
-         {:ok, second_part} <- Transport.read(transport, @calibration_block_2, 14) do
-      {:ok, {res_heat_val, res_heat_range, rse, first_part, second_part}}
-    end
+    with {:ok, coeff3_binary} <- Transport.read(transport, @coeff3_register, 5),
+         {:ok, coeff1_binary} <- Transport.read(transport, @coeff1_register, 23),
+         {:ok, coeff2_binary} <- Transport.read(transport, @coeff2_register, 14),
+         do: {:ok, {coeff1_binary, coeff2_binary, coeff3_binary}}
   end
 
-  @spec read_raw_samples(Transport.t()) :: {:error, any} | {:ok, Calc.raw()}
+  @spec read_raw_samples(Transport.t()) :: {:error, any} | {:ok, BME680Sensor.raw_samples()}
   def read_raw_samples(transport) do
     with :ok <- set_forced_mode(transport),
          :ok <- ensure_new_data(transport),
          {:ok, pth} <- Transport.read(transport, @press_msb_register, 8),
          {:ok, gas} <- Transport.read(transport, @gas_r_msb_register, 2),
-         <<pressure::20, _::4, temp::20, _::4, humidity::16>> <- pth,
-         <<gas_r::10, _::2, gas_range_r::4>> <- gas do
+         <<pressure::20, _::4, temperature::20, _::4, humidity::16>> <- pth,
+         <<gas_resistance::10, _::2, gas_range::4>> <- gas do
       {:ok,
        %{
          raw_pressure: pressure,
-         raw_temperature: temp,
+         raw_temperature: temperature,
          raw_humidity: humidity,
-         gas_r: gas_r,
-         gas_range_r: gas_range_r
+         raw_gas_resistance: gas_resistance,
+         raw_gas_range: gas_range
        }}
     end
   end
