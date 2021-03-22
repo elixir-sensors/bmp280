@@ -24,6 +24,7 @@ defmodule BMP280.Comm do
   """
   @spec reset(BMP280.Transport.t()) :: :ok | {:error, any}
   def reset(transport) do
-    Transport.write(transport, @reset_register, <<0xB6>>)
+    with :ok <- Transport.write(transport, @reset_register, <<0xB6>>),
+         do: Process.sleep(10)
   end
 end

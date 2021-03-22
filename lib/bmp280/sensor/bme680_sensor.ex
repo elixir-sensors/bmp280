@@ -87,12 +87,12 @@ defmodule BMP280.BME680Sensor do
       ...>   par_gh1: -30,
       ...>   par_gh2: -5969,
       ...>   par_gh3: 18,
+      ...>   res_heat_val: 50,
       ...>   res_heat_range: 1,
-      ...>   res_heat_val: 0,
-      ...>   range_switching_error: 243
+      ...>   range_switching_error: 1
       ...> }
       iex> BME680Sensor.heater_resistance_code(cal, 300, 28)
-      131
+      112
   """
   @spec heater_resistance_code(BME680Calibration.t(), heater_temperature_c(), integer()) ::
           integer()
