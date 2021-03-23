@@ -40,7 +40,8 @@ defmodule BMP280.BME680Calibration do
         <<par_h2h, par_h2l::4, par_h1l::4, par_h1h, par_h3::signed, par_h4::signed,
           par_h5::signed, par_h6, par_h7::signed, par_t1::little-16, par_gh2::little-signed-16,
           par_gh1::signed, par_gh3::signed>>,
-        <<res_heat_val, _skip01, _::2, res_heat_range::2, _::4, _skip03, range_switching_error>>
+        <<res_heat_val::signed, _skip01, _::2, res_heat_range::2, _::4, _skip03,
+          range_switching_error::signed-4, _::4>>
       }) do
     %{
       type: :bme680,

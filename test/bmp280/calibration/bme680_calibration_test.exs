@@ -37,7 +37,7 @@ defmodule BMP280.BME680CalibrationTest do
                par_gh1: -30,
                par_gh2: -5969,
                par_gh3: 18,
-               range_switching_error: 19,
+               range_switching_error: 1,
                res_heat_val: 50,
                res_heat_range: 1
              }

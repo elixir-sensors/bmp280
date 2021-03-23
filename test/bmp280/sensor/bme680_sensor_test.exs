@@ -28,9 +28,9 @@ defmodule BMP280.BME680SensorTest do
     par_gh1: -30,
     par_gh2: -5969,
     par_gh3: 18,
-    range_switching_error: 0,
-    res_heat_range: 0,
-    res_heat_val: 0
+    range_switching_error: 1,
+    res_heat_val: 50,
+    res_heat_range: 1
   }
 
   test "bme680 calculations" do
@@ -38,8 +38,8 @@ defmodule BMP280.BME680SensorTest do
       raw_temperature: 480_732,
       raw_pressure: 393_705,
       raw_humidity: 16820,
-      raw_gas_resistance: 195,
-      raw_gas_range: 9
+      raw_gas_resistance: 666,
+      raw_gas_range: 11
     }
 
     state = %{calibration: @bme680_calibration, sea_level_pa: 100_000}
@@ -50,6 +50,6 @@ defmodule BMP280.BME680SensorTest do
     assert_in_delta 100_977.52, measurement.pressure_pa, 0.01
     assert_in_delta 25.2, measurement.humidity_rh, 0.1
     assert_in_delta -1.1, measurement.dew_point_c, 0.1
-    assert_in_delta 20467.2644, measurement.gas_resistance_ohms, 0.0001
+    assert_in_delta 3503.6322, measurement.gas_resistance_ohms, 0.0001
   end
 end
