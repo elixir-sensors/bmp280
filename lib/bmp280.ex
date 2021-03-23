@@ -2,7 +2,7 @@ defmodule BMP280 do
   use GenServer
   require Logger
 
-  alias BMP280.{Calc, Calibration, Comm, Measurement, Transport}
+  alias BMP280.{Calc, Comm, Measurement, Transport}
 
   @sea_level_pa 100_000
   @default_bmp280_bus_address 0x77
@@ -33,6 +33,17 @@ defmodule BMP280 do
           bus_address: Transport.address(),
           sea_level_pa: number()
         ]
+
+  @type state :: %{
+          calibration:
+            BMP280.BMP280Calibration.t()
+            | BMP280.BME280Calibration.t()
+            | BMP280.BME680Calibration.t(),
+          last_measurement: BMP280.Measurement.t(),
+          sea_level_pa: number(),
+          sensor_type: BMP280.sensor_type(),
+          transport: BMP280.Transport.t()
+        }
 
   @doc """
   Start a new GenServer for interacting with a BMP280
@@ -188,51 +199,17 @@ defmodule BMP280 do
     %{state | sensor_type: sensor_type}
   end
 
-  defp init_sensor(%{sensor_type: :bmp280} = state) do
-    with :ok <- Comm.BMP280.set_oversampling(state.transport),
-         {:ok, raw} <- Comm.BMP280.read_calibration(state.transport),
-         do: %{state | calibration: Calibration.from_binary(:bmp280, raw)}
+  defp init_sensor(state) do
+    state.sensor_type |> sensor_module() |> apply(:init, [state])
   end
 
-  defp init_sensor(%{sensor_type: :bme280} = state) do
-    with :ok <- Comm.BME280.set_oversampling(state.transport),
-         {:ok, raw} <- Comm.BME280.read_calibration(state.transport),
-         do: %{state | calibration: Calibration.from_binary(:bme280, raw)}
-  end
-
-  defp init_sensor(%{sensor_type: :bme680} = state) do
-    with :ok <- Comm.reset(state.transport),
-         {:ok, cal_binary} <- Comm.BME680.read_calibration(state.transport),
-         state <- %{state | calibration: Calibration.from_binary(:bme680, cal_binary)},
-         :ok <- Comm.BME680.set_oversampling(state.transport),
-         :ok <- Comm.BME680.set_filter(state.transport),
-         :ok <- enable_gas_sensor(state) do
-      state
-    end
-  end
-
-  defp enable_gas_sensor(state, heater_temp_c \\ 300, heater_duration_ms \\ 100, amb_temp_c \\ 30) do
-    with :ok <- Comm.BME680.enable_gas_sensor(state.transport),
-         heater_resistance_code <-
-           Calibration.BME680.heater_resistance_code(state.calibration, heater_temp_c, amb_temp_c),
-         :ok <- Comm.BME680.set_gas_heater_temperature(state.transport, heater_resistance_code),
-         heater_duration_code <- Calibration.BME680.heater_duration_code(heater_duration_ms),
-         :ok <- Comm.BME680.set_gas_heater_duration(state.transport, heater_duration_code),
-         :ok <- Comm.BME680.set_gas_heater_profile(state.transport, 0) do
-      :ok
-    end
+  defp read_sensor(state) do
+    state.sensor_type |> sensor_module() |> apply(:read, [state])
   end
 
   defp read_and_put_new_measurement(state) do
-    case read_raw_samples(state.transport, state.sensor_type) do
-      {:ok, raw} ->
-        measurement =
-          Calc.raw_to_measurement(
-            state.calibration,
-            state.sea_level_pa,
-            raw
-          )
-
+    case read_sensor(state) do
+      {:ok, measurement} ->
         %{state | last_measurement: measurement}
 
       {:error, reason} ->
@@ -241,7 +218,7 @@ defmodule BMP280 do
     end
   end
 
-  defp read_raw_samples(transport, :bmp280), do: Comm.BMP280.read_raw_samples(transport)
-  defp read_raw_samples(transport, :bme280), do: Comm.BME280.read_raw_samples(transport)
-  defp read_raw_samples(transport, :bme680), do: Comm.BME680.read_raw_samples(transport)
+  defp sensor_module(:bmp280), do: BMP280.BMP280Sensor
+  defp sensor_module(:bme280), do: BMP280.BME280Sensor
+  defp sensor_module(:bme680), do: BMP280.BME680Sensor
 end

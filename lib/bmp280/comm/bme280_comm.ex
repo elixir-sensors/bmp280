@@ -1,10 +1,7 @@
-defmodule BMP280.Comm.BME280 do
+defmodule BMP280.BME280Comm do
   @moduledoc false
 
-  alias BMP280.{Calc, Transport}
-
-  @type raw_pressure :: 0..0xFFFFF
-  @type raw_temperature :: 0..0xFFFFF
+  alias BMP280.{BME280Sensor, Transport}
 
   @calib00_register 0x88
   @calib26_register 0xE1
@@ -40,7 +37,7 @@ defmodule BMP280.Comm.BME280 do
     end
   end
 
-  @spec read_raw_samples(Transport.t()) :: {:error, any} | {:ok, Calc.raw()}
+  @spec read_raw_samples(Transport.t()) :: {:error, any} | {:ok, BME280Sensor.raw_samples()}
   def read_raw_samples(transport) do
     case Transport.read(transport, @press_msb_register, 8) do
       {:ok, <<pressure::20, _::4, temp::20, _::4, humidity::16>>} ->
