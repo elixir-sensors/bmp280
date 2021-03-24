@@ -4,7 +4,7 @@
 [![CircleCI](https://circleci.com/gh/fhunleth/bmp280.svg?style=svg)](https://circleci.com/gh/fhunleth/bmp280)
 
 Read temperature and pressure from Bosch
-[BMP280](https://www.bosch-sensortec.com/products/environmental-sensors/pressure-sensors/pressure-sensors-bmp280-1.html),
+[BMP280](https://www.bosch-sensortec.com/products/environmental-sensors/pressure-sensors/bmp280/),
 [BME280](https://www.bosch-sensortec.com/products/environmental-sensors/humidity-sensors-bme280/),
 and
 [BME680](https://www.bosch-sensortec.com/products/environmental-sensors/gas-sensors-bme680/)
@@ -22,7 +22,7 @@ iex> BMP280.measure(bmp)
  %BMP280.Measurement{
    altitude_m: 138.96206905098805,
    dew_point_c: 2.629181073094435,
-   gas_resistance_ohms: 65538.59364451322,
+   gas_resistance_ohms: 5279.474749704044,
    humidity_rh: 34.39681642351278,
    pressure_pa: 100818.86273677988,
    temperature_c: 18.645856498100876,
