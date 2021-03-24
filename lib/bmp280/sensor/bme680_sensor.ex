@@ -13,7 +13,7 @@ defmodule BMP280.BME680Sensor do
           raw_gas_range: non_neg_integer()
         }
 
-  @type heater_duration_ms() :: 20..4032
+  @type heater_duration_ms() :: 1..4032
   @type heater_temperature_c() :: 200..400
 
   @heater_temperature_c 300
@@ -121,25 +121,31 @@ defmodule BMP280.BME680Sensor do
   end
 
   @doc """
-  Convert the heater duration milliseconds into a register code.
+  Convert the heater duration milliseconds into a register code. Heating durations between 1 ms and
+  4032 ms can be configured. In practice, approximately 20–30 ms are necessary for the heater to
+  reach the intended target temperature.
 
   ## Examples
 
-      iex> BME680Sensor.heater_duration_code(100)
-      89
-      iex> BME680Sensor.heater_duration_code(64)
-      80
       iex> BME680Sensor.heater_duration_code(63)
       63
+      iex> BME680Sensor.heater_duration_code(64)
+      80
+      iex> BME680Sensor.heater_duration_code(100)
+      89
+      iex> BME680Sensor.heater_duration_code(4032)
+      255
+      iex> BME680Sensor.heater_duration_code(4033)
+      ** (FunctionClauseError) no function clause matching in BMP280.BME680Sensor.heater_duration_code/2
   """
   @spec heater_duration_code(heater_duration_ms(), non_neg_integer()) :: non_neg_integer()
   def heater_duration_code(duration, factor \\ 0)
 
-  def heater_duration_code(duration, factor) when duration >= 64 do
+  def heater_duration_code(duration, factor) when duration in 64..4032 do
     duration |> div(4) |> heater_duration_code(factor + 1)
   end
 
-  def heater_duration_code(duration, factor) when duration < 64 do
+  def heater_duration_code(duration, factor) when duration in 1..63 do
     duration + factor * 64
   end
 end
