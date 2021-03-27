@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.3.0
+
+* New features
+  * Stable basic gas support
+
+* API changes
+  * Deprecated `BMP280.read/1` is removed.
+
+* Improvements
+  * Restructure internal code organization.
+  * Change the ambient temperature value from `30` to `25`.
+
+* Fixes
+  * Sleep 10 ms after soft reset so that the sensor data can be read properly.
+  * Correct the parser for gas-related calibration data. Previously, some data types were wrong.
+  * Fix a broken link to BMP280 sensor in README.
+
 ## v0.2.4
 
 This release adds support for reading the BME680's gas resistance sensor. In the
