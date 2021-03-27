@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.2.5
+
+* New features
+  * Stable basic gas support
+
+* API changes
+  * none
+
+* Improvements
+  * Restructure internal code organization.
+  * Change ambient temperature estimate from `30 C` to `25 C` for setting up gas measurements
+
+* Fixes
+  * Sleep 10 ms after soft reset so that the sensor data can be read properly.
+  * Correct the parser for gas-related calibration data. Previously, some data types were wrong.
+  * Fix a broken link to BMP280 sensor in README.
+
 ## v0.2.4
 
 This release adds support for reading the BME680's gas resistance sensor. In the
