@@ -18,7 +18,7 @@ defmodule BMP280.BME680Sensor do
 
   @heater_temperature_c 300
   @heater_duration_ms 100
-  @ambient_temperature_c 30
+  @ambient_temperature_c 25
 
   @impl true
   def init(%{transport: transport} = initial_state) do
