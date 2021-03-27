@@ -78,9 +78,6 @@ defmodule BMP280 do
     GenServer.call(server, :measure)
   end
 
-  @deprecated "Use BMP280.measure/1 instead"
-  def read(server), do: measure(server)
-
   @doc """
   Update the sea level pressure estimate
 
