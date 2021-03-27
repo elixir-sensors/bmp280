@@ -10,7 +10,7 @@
 
 * Improvements
   * Restructure internal code organization.
-  * Change the ambient temperature value from `30` to `25`.
+  * Change ambient temperature estimate from `30 C` to `25 C` for setting up gas measurements
 
 * Fixes
   * Sleep 10 ms after soft reset so that the sensor data can be read properly.
