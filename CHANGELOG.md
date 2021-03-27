@@ -6,7 +6,7 @@
   * Stable basic gas support
 
 * API changes
-  * Deprecated `BMP280.read/1` is removed.
+  * none
 
 * Improvements
   * Restructure internal code organization.
