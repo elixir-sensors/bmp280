@@ -13,7 +13,7 @@ defmodule BMP280 do
 
   If the sensor is unknown, then number in the parts ID register is used.
   """
-  @type sensor_type() :: :bmp280 | :bme280 | :bme680 | 0..255
+  @type sensor_type() :: :bmp280 | :bme280 | :bme680 | :bmp388 | :bmp390
 
   @moduledoc """
   Read temperature and pressure from a Bosch BM280, BME280, or BME680 sensor
@@ -35,10 +35,7 @@ defmodule BMP280 do
         ]
 
   @type state :: %{
-          calibration:
-            BMP280.BMP280Calibration.t()
-            | BMP280.BME280Calibration.t()
-            | BMP280.BME680Calibration.t(),
+          calibration: BMP280.Calibration.t(),
           last_measurement: BMP280.Measurement.t(),
           sea_level_pa: number(),
           sensor_type: BMP280.sensor_type(),
@@ -118,8 +115,7 @@ defmodule BMP280 do
 
   The bus address is likely going to be 0x77 (the default) or 0x76.
   """
-  @spec detect(String.t(), Transport.address()) ::
-          {:ok, sensor_type()} | {:error, any()}
+  @spec detect(String.t(), Transport.address()) :: {:ok, sensor_type()} | {:error, any()}
   def detect(bus_name, bus_address \\ @default_bmp280_bus_address) do
     with {:ok, transport} <- Transport.open(bus_name, bus_address) do
       Comm.sensor_type(transport)
@@ -221,4 +217,5 @@ defmodule BMP280 do
   defp sensor_module(:bmp280), do: BMP280.BMP280Sensor
   defp sensor_module(:bme280), do: BMP280.BME280Sensor
   defp sensor_module(:bme680), do: BMP280.BME680Sensor
+  defp sensor_module(:bmp388), do: BMP280.BMP388Sensor
 end

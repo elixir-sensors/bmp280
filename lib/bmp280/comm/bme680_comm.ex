@@ -15,6 +15,7 @@ defmodule BMP280.BME680Comm do
   @meas_status0_register 0x1D
   @press_msb_register 0x1F
   @res_heat0_register 0x5A
+  @reset_register 0xE0
 
   @oversampling_2x 2
   @oversampling_16x 5
@@ -23,6 +24,12 @@ defmodule BMP280.BME680Comm do
   @forced_mode 1
 
   @filter_size_3 2
+
+  @spec reset(BMP280.Transport.t()) :: :ok | {:error, any}
+  def reset(transport) do
+    with :ok <- Transport.write(transport, @reset_register, <<0xB6>>),
+         do: Process.sleep(10)
+  end
 
   @spec set_sleep_mode(BMP280.Transport.t()) :: :ok | {:error, any}
   def set_sleep_mode(transport), do: set_power_mode(transport, @sleep_mode)

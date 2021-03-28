@@ -1,7 +1,7 @@
 defmodule BMP280.BME680Sensor do
   @moduledoc false
 
-  alias BMP280.{BME680Calibration, BME680Comm, Calc, Comm, Measurement}
+  alias BMP280.{BME680Calibration, BME680Comm, Calc, Measurement}
 
   @behaviour BMP280.Sensor
 
@@ -22,7 +22,7 @@ defmodule BMP280.BME680Sensor do
 
   @impl true
   def init(%{transport: transport} = initial_state) do
-    with :ok <- Comm.reset(transport),
+    with :ok <- BME680Comm.reset(transport),
          {:ok, cal_binary} <- BME680Comm.read_calibration(transport),
          calibration <- BME680Calibration.from_binary(cal_binary),
          :ok <- BME680Comm.set_oversampling(transport),
