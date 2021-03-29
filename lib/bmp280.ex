@@ -218,4 +218,5 @@ defmodule BMP280 do
   defp sensor_module(:bme280), do: BMP280.BME280Sensor
   defp sensor_module(:bme680), do: BMP280.BME680Sensor
   defp sensor_module(:bmp388), do: BMP280.BMP388Sensor
+  defp sensor_module(:bmp390), do: BMP280.BMP388Sensor
 end
