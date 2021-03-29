@@ -3,9 +3,13 @@
 [![Hex version](https://img.shields.io/hexpm/v/bmp280.svg "Hex version")](https://hex.pm/packages/bmp280)
 [![CircleCI](https://circleci.com/gh/fhunleth/bmp280.svg?style=svg)](https://circleci.com/gh/fhunleth/bmp280)
 
+[![](https://www.bosch-sensortec.com/media/boschsensortec/products/productrenderings_16_9/16_21/barometic_pressure_sensors/bosch-sensortec-products-bmp280-16-9_res_1984x1116.jpg)](https://www.bosch-sensortec.com/products/environmental-sensors/pressure-sensors/)
+
 Read temperature and pressure from Bosch
 [BMP280](https://www.bosch-sensortec.com/products/environmental-sensors/pressure-sensors/bmp280/),
 [BME280](https://www.bosch-sensortec.com/products/environmental-sensors/humidity-sensors-bme280/),
+[BMP388](https://www.bosch-sensortec.com/products/environmental-sensors/pressure-sensors/bmp388/),
+[BMP390](https://www.bosch-sensortec.com/products/environmental-sensors/pressure-sensors/bmp390/),
 and
 [BME680](https://www.bosch-sensortec.com/products/environmental-sensors/gas-sensors-bme680/)
 sensors in Elixir.
