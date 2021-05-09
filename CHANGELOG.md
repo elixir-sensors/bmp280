@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.2.6
+
+* Improvements
+  * Make README.md the main doc page
+  * Add "Nerves Livebook Firmware" section to README.md
+
+* Fixes
+  * Fix broken CI link
+
 ## v0.2.5
 
 * New features
