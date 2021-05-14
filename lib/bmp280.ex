@@ -131,17 +131,20 @@ defmodule BMP280 do
     bus_name = Keyword.get(args, :bus_name, "i2c-1")
     bus_address = Keyword.get(args, :bus_address, @default_bmp280_bus_address)
 
-    {:ok, transport} = Transport.open(bus_name, bus_address)
+    with {:ok, _} <- Circuits.I2C.discover_one([bus_address]),
+         {:ok, transport} <- Transport.open(bus_name, bus_address) do
+      state = %{
+        transport: transport,
+        calibration: nil,
+        sea_level_pa: Keyword.get(args, :sea_level_pa, @sea_level_pa),
+        sensor_type: nil,
+        last_measurement: nil
+      }
 
-    state = %{
-      transport: transport,
-      calibration: nil,
-      sea_level_pa: Keyword.get(args, :sea_level_pa, @sea_level_pa),
-      sensor_type: nil,
-      last_measurement: nil
-    }
-
-    {:ok, state, {:continue, :continue}}
+      {:ok, state, {:continue, :continue}}
+    else
+      _error -> {:stop, :bus_not_found}
+    end
   end
 
   @impl GenServer
