@@ -52,7 +52,7 @@ defmodule BMP280.MixProject do
     [
       {:circuits_i2c, "~> 0.3"},
       {:ex_doc, "~> 0.22", only: :docs, runtime: false},
-      {:dialyxir, "~> 1.0.0", only: [:dev, :test], runtime: false}
+      {:dialyxir, "~> 1.1", only: [:dev, :test], runtime: false}
     ]
   end
 
