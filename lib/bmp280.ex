@@ -131,20 +131,20 @@ defmodule BMP280 do
     bus_name = Keyword.get(args, :bus_name, "i2c-1")
     bus_address = Keyword.get(args, :bus_address, @default_bmp280_bus_address)
 
-    case Transport.open(bus_name, bus_address) do
-      {:ok, transport} ->
-        state = %{
-          transport: transport,
-          calibration: nil,
-          sea_level_pa: Keyword.get(args, :sea_level_pa, @sea_level_pa),
-          sensor_type: nil,
-          last_measurement: nil
-        }
+    with {:ok, transport} <- Transport.open(bus_name, bus_address),
+         {:ok, sensor_type} <- Comm.sensor_type(transport) do
+      state = %{
+        transport: transport,
+        calibration: nil,
+        sea_level_pa: Keyword.get(args, :sea_level_pa, @sea_level_pa),
+        sensor_type: sensor_type,
+        last_measurement: nil
+      }
 
-        {:ok, state, {:continue, :continue}}
-
-      {:error, reason} ->
-        {:stop, reason}
+      {:ok, state, {:continue, :continue}}
+    else
+      _error ->
+        {:stop, :device_not_found}
     end
   end
 
@@ -152,7 +152,6 @@ defmodule BMP280 do
   def handle_continue(:continue, state) do
     new_state =
       state
-      |> query_sensor()
       |> init_sensor()
       |> read_and_put_new_measurement()
 
@@ -195,12 +194,6 @@ defmodule BMP280 do
 
   defp schedule_measurement() do
     Process.send_after(self(), :schedule_measurement, @polling_interval)
-  end
-
-  defp query_sensor(state) do
-    {:ok, sensor_type} = Comm.sensor_type(state.transport)
-
-    %{state | sensor_type: sensor_type}
   end
 
   defp init_sensor(state) do

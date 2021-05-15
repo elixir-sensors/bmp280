@@ -9,11 +9,8 @@ defmodule BMP280.Transport do
 
   @spec open(String.t(), address()) :: {:ok, t()} | {:error, any()}
   def open(bus_name, address) do
-    with {:ok, _} <- Circuits.I2C.discover_one([address]),
-         {:ok, i2c} <- I2C.open(bus_name) do
+    with {:ok, i2c} <- I2C.open(bus_name) do
       {:ok, %__MODULE__{i2c: i2c, address: address}}
-    else
-      _error -> {:error, :device_not_found}
     end
   end
 
