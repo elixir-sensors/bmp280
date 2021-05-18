@@ -49,9 +49,3 @@ Subsequent altitude reports should be more accurate until the weather changes.
 ## Nerves Livebook Firmware
 
 [Nerves Livebook Firmware](https://github.com/fhunleth/nerves_livebook) contains BMP280 example, which shows you how to work with the BMP280 sensor on the [Nerves](https://www.nerves-project.org/) projects with example code that is runnable from the comfort of your browser.
-
-## Support for other Bosch barometric sensors
-
-Other Bosch sensors tend to look similar, but they have enough differences that
-they do not work yet. If you're using one of them, please help me by either
-verifying that they work or adding support for them.

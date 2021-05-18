@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.2.7
+
+* Improvements
+  * Update Circle config for OTP 24
+  * Remove the "Support for other Bosch barometric sensors" section from README
+
+* Fixes
+  * Halt the sensor initialization when device is not found
+
 ## v0.2.6
 
 * Improvements
