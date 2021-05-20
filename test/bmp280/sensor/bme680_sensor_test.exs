@@ -34,14 +34,7 @@ defmodule BMP280.BME680SensorTest do
   }
 
   test "bme680 calculations" do
-    raw_samples = %{
-      raw_temperature: 480_732,
-      raw_pressure: 393_705,
-      raw_humidity: 16820,
-      raw_gas_resistance: 666,
-      raw_gas_range: 11
-    }
-
+    raw_samples = <<393_705::20, 0::4, 480_732::20, 0::4, 16820::16, 666::10, 0::2, 11::4>>
     state = %{calibration: @bme680_calibration, sea_level_pa: 100_000}
 
     measurement = BME680Sensor.measurement_from_raw_samples(raw_samples, state)

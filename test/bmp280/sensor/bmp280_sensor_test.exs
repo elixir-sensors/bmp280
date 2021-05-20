@@ -20,7 +20,7 @@ defmodule BMP280.BMP280SensorTest do
   }
 
   test "bmp280 calculations" do
-    raw_samples = %{raw_temperature: 536_368, raw_pressure: 284_052}
+    raw_samples = <<69, 89, 64, 130, 243, 0>>
     state = %{calibration: @bmp280_calibration, sea_level_pa: 100_000}
 
     measurement = BMP280Sensor.measurement_from_raw_samples(raw_samples, state)

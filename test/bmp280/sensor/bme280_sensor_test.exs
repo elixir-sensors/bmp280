@@ -48,7 +48,7 @@ defmodule BMP280.BME280SensorTest do
   }
 
   test "bme280 1 calculations" do
-    raw_samples = %{raw_temperature: 536_368, raw_pressure: 284_052, raw_humidity: 35181}
+    raw_samples = <<69, 89, 64, 130, 243, 0, 137, 109>>
     state = %{calibration: @bme280_calibration1, sea_level_pa: 100_000}
 
     measurement = BME280Sensor.measurement_from_raw_samples(raw_samples, state)
@@ -60,7 +60,7 @@ defmodule BMP280.BME280SensorTest do
   end
 
   test "bme280 2 calculations" do
-    raw_samples = %{raw_temperature: 516_344, raw_pressure: 316_593, raw_humidity: 26270}
+    raw_samples = <<77, 75, 16, 126, 15, 128, 102, 158>>
     state = %{calibration: @bme280_calibration2, sea_level_pa: 100_000}
 
     measurement = BME280Sensor.measurement_from_raw_samples(raw_samples, state)
