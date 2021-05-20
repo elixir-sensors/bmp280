@@ -50,17 +50,21 @@ defmodule BMP280.BME680Sensor do
     end
   end
 
-  @spec measurement_from_raw_samples(raw_samples(), BMP280.state()) :: BMP280.Measurement.t()
-  def measurement_from_raw_samples(raw, %{calibration: calibration, sea_level_pa: sea_level_pa}) do
-    temperature_c = BME680Calibration.raw_to_temperature(calibration, raw.raw_temperature)
-    pressure_pa = BME680Calibration.raw_to_pressure(calibration, temperature_c, raw.raw_pressure)
-    humidity_rh = BME680Calibration.raw_to_humidity(calibration, temperature_c, raw.raw_humidity)
+  @spec measurement_from_raw_samples(<<_::80>>, BMP280.state()) :: BMP280.Measurement.t()
+  def measurement_from_raw_samples(raw_samples, state) do
+    <<raw_pressure::20, _::4, raw_temperature::20, _::4, raw_humidity::16, _::16>> = raw_samples
+    <<_::64, raw_gas_resistance::10, _::2, raw_gas_range::4>> = raw_samples
+    %{calibration: calibration, sea_level_pa: sea_level_pa} = state
+
+    temperature_c = BME680Calibration.raw_to_temperature(calibration, raw_temperature)
+    pressure_pa = BME680Calibration.raw_to_pressure(calibration, temperature_c, raw_pressure)
+    humidity_rh = BME680Calibration.raw_to_humidity(calibration, temperature_c, raw_humidity)
 
     gas_resistance_ohms =
       BME680Calibration.raw_to_gas_resistance(
         calibration,
-        raw.raw_gas_resistance,
-        raw.raw_gas_range
+        raw_gas_resistance,
+        raw_gas_range
       )
 
     # Derived calculations
