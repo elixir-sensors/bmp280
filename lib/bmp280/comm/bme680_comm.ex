@@ -1,7 +1,7 @@
 defmodule BMP280.BME680Comm do
   @moduledoc false
 
-  alias BMP280.{BME680Sensor, Transport}
+  alias BMP280.Transport
 
   @coeff1_register 0x8A
   @coeff2_register 0xE1
@@ -56,8 +56,8 @@ defmodule BMP280.BME680Comm do
   """
   @spec set_filter(Transport.t()) :: :ok | {:error, any()}
   def set_filter(transport) do
-    with {:ok, config} <- Transport.read(transport, @config_register, 1),
-         <<no_change1::3, _filter::3, no_change2::2>> <- config do
+    with {:ok, <<no_change1::3, _filter::3, no_change2::2>>} <-
+           Transport.read(transport, @config_register, 1) do
       Transport.write(
         transport,
         @config_register,
@@ -73,8 +73,8 @@ defmodule BMP280.BME680Comm do
   def disable_gas_sensor(transport), do: set_gas_status(transport, 0)
 
   defp set_gas_status(transport, run_gas) do
-    with {:ok, ctrl_gas1} <- Transport.read(transport, @ctrl_gas1_register, 1),
-         <<no_change1::3, _run_gas::1, no_change2::4>> <- ctrl_gas1 do
+    with {:ok, <<no_change1::3, _run_gas::1, no_change2::4>>} <-
+           Transport.read(transport, @ctrl_gas1_register, 1) do
       Transport.write(
         transport,
         @ctrl_gas1_register,
@@ -104,8 +104,8 @@ defmodule BMP280.BME680Comm do
   """
   @spec set_gas_heater_profile(Transport.t(), 0..9) :: :ok | {:error, any()}
   def set_gas_heater_profile(transport, heater_set_point) do
-    with {:ok, ctrl_gas1} <- Transport.read(transport, @ctrl_gas1_register, 1),
-         <<no_change::4, _heater_set_point::4>> <- ctrl_gas1 do
+    with {:ok, <<no_change::4, _heater_set_point::4>>} <-
+           Transport.read(transport, @ctrl_gas1_register, 1) do
       Transport.write(transport, @ctrl_gas1_register, <<no_change::4, heater_set_point::4>>)
     end
   end
@@ -113,29 +113,19 @@ defmodule BMP280.BME680Comm do
   @spec read_calibration(Transport.t()) ::
           {:ok, {<<_::184>>, <<_::112>>, <<_::40>>}} | {:error, any}
   def read_calibration(transport) do
-    with {:ok, coeff3_binary} <- Transport.read(transport, @coeff3_register, 5),
-         {:ok, coeff1_binary} <- Transport.read(transport, @coeff1_register, 23),
+    with {:ok, coeff1_binary} <- Transport.read(transport, @coeff1_register, 23),
          {:ok, coeff2_binary} <- Transport.read(transport, @coeff2_register, 14),
+         {:ok, coeff3_binary} <- Transport.read(transport, @coeff3_register, 5),
          do: {:ok, {coeff1_binary, coeff2_binary, coeff3_binary}}
   end
 
-  @spec read_raw_samples(Transport.t()) :: {:error, any} | {:ok, BME680Sensor.raw_samples()}
+  @spec read_raw_samples(Transport.t()) :: {:error, any} | {:ok, <<_::80>>}
   def read_raw_samples(transport) do
     with :ok <- set_forced_mode(transport),
          :ok <- ensure_new_data(transport),
-         {:ok, pth} <- Transport.read(transport, @press_msb_register, 8),
-         {:ok, gas} <- Transport.read(transport, @gas_r_msb_register, 2),
-         <<pressure::20, _::4, temperature::20, _::4, humidity::16>> <- pth,
-         <<gas_resistance::10, _::2, gas_range::4>> <- gas do
-      {:ok,
-       %{
-         raw_pressure: pressure,
-         raw_temperature: temperature,
-         raw_humidity: humidity,
-         raw_gas_resistance: gas_resistance,
-         raw_gas_range: gas_range
-       }}
-    end
+         {:ok, pth_block} <- Transport.read(transport, @press_msb_register, 8),
+         {:ok, gas_block} <- Transport.read(transport, @gas_r_msb_register, 2),
+         do: {:ok, pth_block <> gas_block}
   end
 
   defp ensure_new_data(transport) do
@@ -147,8 +137,9 @@ defmodule BMP280.BME680Comm do
   end
 
   defp new_data?(transport) do
-    {:ok, binary} = Transport.read(transport, @meas_status0_register, 1)
-    <<new_data0::1, _gas_measuring::1, _measuring::1, _::1, _gas_meas_index0::4>> = binary
-    new_data0 == 1
+    with {:ok, <<new_data0::1, _gas_measuring::1, _measuring::1, _::1, _gas_meas_index0::4>>} <-
+           Transport.read(transport, @meas_status0_register, 1) do
+      new_data0 == 1
+    end
   end
 end
