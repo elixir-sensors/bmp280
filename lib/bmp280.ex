@@ -30,20 +30,9 @@ defmodule BMP280 do
   @type options() :: [
           name: GenServer.name(),
           bus_name: String.t(),
-          bus_address: Transport.address(),
+          bus_address: 0x76 | 0x77,
           sea_level_pa: number()
         ]
-
-  @type state :: %{
-          calibration:
-            BMP280.BMP280Calibration.t()
-            | BMP280.BME280Calibration.t()
-            | BMP280.BME680Calibration.t(),
-          last_measurement: BMP280.Measurement.t(),
-          sea_level_pa: number(),
-          sensor_type: BMP280.sensor_type(),
-          transport: BMP280.Transport.t()
-        }
 
   @doc """
   Start a new GenServer for interacting with a BMP280
@@ -118,8 +107,7 @@ defmodule BMP280 do
 
   The bus address is likely going to be 0x77 (the default) or 0x76.
   """
-  @spec detect(String.t(), Transport.address()) ::
-          {:ok, sensor_type()} | {:error, any()}
+  @spec detect(String.t(), 0x76 | 0x77) :: {:ok, sensor_type()} | {:error, any()}
   def detect(bus_name, bus_address \\ @default_bmp280_bus_address) do
     with {:ok, transport} <- Transport.open(bus_name, bus_address) do
       Comm.sensor_type(transport)

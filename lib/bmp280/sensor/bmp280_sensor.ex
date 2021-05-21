@@ -21,7 +21,7 @@ defmodule BMP280.BMP280Sensor do
     end
   end
 
-  @spec measurement_from_raw_samples(<<_::48>>, BMP280.state()) :: BMP280.Measurement.t()
+  @spec measurement_from_raw_samples(<<_::48>>, BMP280.Sensor.t()) :: BMP280.Measurement.t()
   def measurement_from_raw_samples(raw_samples, state) do
     <<raw_pressure::20, _::4, raw_temperature::20, _::4>> = raw_samples
     %{calibration: calibration, sea_level_pa: sea_level_pa} = state

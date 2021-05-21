@@ -50,7 +50,7 @@ defmodule BMP280.BME680Sensor do
     end
   end
 
-  @spec measurement_from_raw_samples(<<_::80>>, BMP280.state()) :: BMP280.Measurement.t()
+  @spec measurement_from_raw_samples(<<_::80>>, BMP280.Sensor.t()) :: BMP280.Measurement.t()
   def measurement_from_raw_samples(raw_samples, state) do
     <<raw_pressure::20, _::4, raw_temperature::20, _::4, raw_humidity::16, _::16>> = raw_samples
     <<_::64, raw_gas_resistance::10, _::2, raw_gas_range::4>> = raw_samples
