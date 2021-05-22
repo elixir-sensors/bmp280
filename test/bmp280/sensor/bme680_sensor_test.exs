@@ -5,11 +5,11 @@ defmodule BMP280.BME680SensorTest do
 
   @bme680_calibration %{
     type: :bme680,
-    par_t1: 26195,
-    par_t2: 26290,
+    par_t1: 26_195,
+    par_t2: 26_290,
     par_t3: 3,
-    par_p1: 35395,
-    par_p2: -10405,
+    par_p1: 35_395,
+    par_p2: -10_405,
     par_p3: 88,
     par_p4: 4836,
     par_p5: -118,
@@ -34,7 +34,7 @@ defmodule BMP280.BME680SensorTest do
   }
 
   test "bme680 calculations" do
-    raw_samples = <<393_705::20, 0::4, 480_732::20, 0::4, 16820::16, 666::10, 0::2, 11::4>>
+    raw_samples = <<393_705::20, 0::4, 480_732::20, 0::4, 16_820::16, 666::10, 0::2, 11::4>>
     state = %{calibration: @bme680_calibration, sea_level_pa: 100_000}
 
     measurement = BME680Sensor.measurement_from_raw_samples(raw_samples, state)

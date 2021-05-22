@@ -5,18 +5,18 @@ defmodule BMP280.BMP280SensorTest do
 
   @bmp280_calibration %{
     type: :bmp280,
-    dig_P1: 36635,
-    dig_P2: -10696,
-    dig_P3: 3024,
-    dig_P4: 11092,
-    dig_P5: -241,
-    dig_P6: -7,
-    dig_P7: 12300,
-    dig_P8: -12000,
-    dig_P9: 5000,
-    dig_T1: 28189,
-    dig_T2: 26285,
-    dig_T3: 50
+    dig_p1: 36_635,
+    dig_p2: -10_696,
+    dig_p3: 3024,
+    dig_p4: 11_092,
+    dig_p5: -241,
+    dig_p6: -7,
+    dig_p7: 12_300,
+    dig_p8: -12_000,
+    dig_p9: 5000,
+    dig_t1: 28_189,
+    dig_t2: 26_285,
+    dig_t3: 50
   }
 
   test "bmp280 calculations" do

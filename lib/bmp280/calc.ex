@@ -6,7 +6,7 @@ defmodule BMP280.Calc do
   """
   @spec pressure_to_altitude(number(), number()) :: float()
   def pressure_to_altitude(p, sea_level_pa) do
-    44330 * (1 - :math.pow(p / sea_level_pa, 1 / 5.255))
+    44_330 * (1 - :math.pow(p / sea_level_pa, 1 / 5.255))
   end
 
   @doc """
@@ -14,7 +14,7 @@ defmodule BMP280.Calc do
   """
   @spec sea_level_pressure(number(), number()) :: float()
   def sea_level_pressure(p, altitude) do
-    p / :math.pow(1 - altitude / 44330, 5.255)
+    p / :math.pow(1 - altitude / 44_330, 5.255)
   end
 
   @doc """

@@ -110,7 +110,7 @@ defmodule BMP280.BME680Sensor do
     } = cal
 
     var1 = par_gh1 / 16.0 + 49.0
-    var2 = par_gh2 / 32768.0 * 0.0005 + 0.00235
+    var2 = par_gh2 / 32_768.0 * 0.0005 + 0.00235
     var3 = par_gh3 / 1024.0
     var4 = var1 * (1.0 + var2 * heater_temp_c)
     var5 = var4 + var3 * amb_temp_c
