@@ -76,7 +76,7 @@ defmodule BMP280.BME680Calibration do
 
   @spec raw_to_temperature(t(), integer()) :: float()
   def raw_to_temperature(cal, raw_temp) do
-    var1 = (raw_temp / 16384 - cal.par_t1 / 1024) * cal.par_t2
+    var1 = (raw_temp / 16_384 - cal.par_t1 / 1024) * cal.par_t2
 
     var2 =
       (raw_temp / 131_072 - cal.par_t1 / 8192) * (raw_temp / 131_072 - cal.par_t1 / 8192) *
@@ -89,16 +89,16 @@ defmodule BMP280.BME680Calibration do
   def raw_to_pressure(cal, temp, raw_pressure) do
     t_fine = temp * 5120
 
-    var1 = t_fine / 2 - 64000
+    var1 = t_fine / 2 - 64_000
     var2 = var1 * var1 * cal.par_p6 / 131_072
     var2 = var2 + var1 * cal.par_p5 * 2
-    var2 = var2 / 4 + cal.par_p4 * 65536
-    var1 = (cal.par_p3 * var1 * var1 / 16384 + cal.par_p2 * var1) / 524_288
-    var1 = (1 + var1 / 32768) * cal.par_p1
+    var2 = var2 / 4 + cal.par_p4 * 65_536
+    var1 = (cal.par_p3 * var1 * var1 / 16_384 + cal.par_p2 * var1) / 524_288
+    var1 = (1 + var1 / 32_768) * cal.par_p1
     press_comp = 1_048_576 - raw_pressure
     press_comp = (press_comp - var2 / 4096) * 6250 / var1
     var1 = cal.par_p9 * press_comp * press_comp / 2_147_483_648
-    var2 = press_comp * cal.par_p8 / 32768
+    var2 = press_comp * cal.par_p8 / 32_768
     var3 = press_comp / 256 * press_comp / 256 * press_comp / 256 * cal.par_p10 / 131_072
 
     press_comp + (var1 + var2 + var3 + cal.par_p7 * 128) / 16
@@ -112,10 +112,10 @@ defmodule BMP280.BME680Calibration do
       var1 *
         (cal.par_h2 / 262_144 *
            (1 +
-              cal.par_h4 / 16384 *
+              cal.par_h4 / 16_384 *
                 temp + cal.par_h5 / 1_048_576 * temp * temp))
 
-    var3 = cal.par_h6 / 16384
+    var3 = cal.par_h6 / 16_384
     var4 = cal.par_h7 / 2_097_152
     h = var2 + (var3 + var4 * temp) * var2 * var2
 
@@ -163,9 +163,9 @@ defmodule BMP280.BME680Calibration do
   @spec raw_to_gas_resistance(t(), integer(), integer()) :: float()
   def raw_to_gas_resistance(cal, gas_r, gas_range_r)
       when is_number(gas_r) and is_number(gas_range_r) do
-    var1 = (1340 + 5 * cal.range_switching_error) * elem(@gas_range_lookup1, gas_range_r) / 65536
+    var1 = (1340 + 5 * cal.range_switching_error) * elem(@gas_range_lookup1, gas_range_r) / 65_536
 
-    var2 = gas_r * 32768 - 16_777_216 + var1
+    var2 = gas_r * 32_768 - 16_777_216 + var1
     var3 = elem(@gas_range_lookup2, gas_range_r) * var1 / 512
     (var3 + var2 / 2) / var2
   end
