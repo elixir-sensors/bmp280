@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.2.8
+
+* Improvements
+  * Mention BMP3XX in readme
+  * Log helpful message on init
+  * Add credo as a code quality tool
+  * Refactor comm modules in a way they can focus on communicating with the device
+
+* Fixes
+  * Fix typespec links in the hexdoc
+
 ## v0.2.7
 
 * Improvements
