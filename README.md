@@ -49,3 +49,7 @@ Subsequent altitude reports should be more accurate until the weather changes.
 ## Nerves Livebook Firmware
 
 [Nerves Livebook Firmware](https://github.com/fhunleth/nerves_livebook) contains BMP280 example, which shows you how to work with the BMP280 sensor on the [Nerves](https://www.nerves-project.org/) projects with example code that is runnable from the comfort of your browser.
+
+## BMP3XX
+
+Please check out this other Elixir library [BMP3XX](https://hex.pm/packages/bmp3xx) for Bosch [BMP388](https://www.bosch-sensortec.com/products/environmental-sensors/pressure-sensors/bmp388/) and [BMP390](https://www.bosch-sensortec.com/products/environmental-sensors/pressure-sensors/bmp390/) sensors.
