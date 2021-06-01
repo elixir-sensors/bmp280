@@ -119,6 +119,10 @@ defmodule BMP280 do
     bus_name = Keyword.get(args, :bus_name, "i2c-1")
     bus_address = Keyword.get(args, :bus_address, @default_bmp280_bus_address)
 
+    Logger.info(
+      "[BMP280] Starting on bus #{bus_name} at address #{inspect(bus_address, base: :hex)}"
+    )
+
     with {:ok, transport} <- Transport.open(bus_name, bus_address),
          {:ok, sensor_type} <- Comm.sensor_type(transport) do
       state = %{
@@ -129,7 +133,7 @@ defmodule BMP280 do
         last_measurement: nil
       }
 
-      {:ok, state, {:continue, :continue}}
+      {:ok, state, {:continue, :init_sensor}}
     else
       _error ->
         {:stop, :device_not_found}
@@ -137,7 +141,9 @@ defmodule BMP280 do
   end
 
   @impl GenServer
-  def handle_continue(:continue, state) do
+  def handle_continue(:init_sensor, state) do
+    Logger.info("[BMP280] Initializing sensor type #{state.sensor_type}")
+
     new_state =
       state
       |> init_sensor()
@@ -198,7 +204,7 @@ defmodule BMP280 do
         %{state | last_measurement: measurement}
 
       {:error, reason} ->
-        Logger.error("Error reading measurement: #{inspect(reason)}")
+        Logger.error("[BMP280] Error reading measurement: #{inspect(reason)}")
         state
     end
   end
