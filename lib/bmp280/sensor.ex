@@ -3,7 +3,8 @@ defmodule BMP280.Sensor do
 
   @type t :: %{
           calibration:
-            BMP280.BMP280Calibration.t()
+            BMP280.BMP180Calibration.t()
+            | BMP280.BMP280Calibration.t()
             | BMP280.BME280Calibration.t()
             | BMP280.BME680Calibration.t(),
           last_measurement: BMP280.Measurement.t(),

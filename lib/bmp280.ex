@@ -13,7 +13,7 @@ defmodule BMP280 do
 
   If the sensor is unknown, then number in the parts ID register is used.
   """
-  @type sensor_type() :: :bmp280 | :bme280 | :bme680 | 0..255
+  @type sensor_type() :: :bmp180 | :bmp280 | :bme280 | :bme680 | 0..255
 
   @moduledoc """
   Read temperature and pressure from a Bosch BM280, BME280, or BME680 sensor
@@ -209,6 +209,7 @@ defmodule BMP280 do
     end
   end
 
+  defp sensor_module(:bmp180), do: BMP280.BMP180Sensor
   defp sensor_module(:bmp280), do: BMP280.BMP280Sensor
   defp sensor_module(:bme280), do: BMP280.BME280Sensor
   defp sensor_module(:bme680), do: BMP280.BME680Sensor
