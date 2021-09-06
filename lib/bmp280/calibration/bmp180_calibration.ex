@@ -32,17 +32,17 @@ defmodule BMP280.BMP180Calibration do
       ) do
     %{
       type: :bmp180,
-      ac1: s(ac1),
-      ac2: s(ac2),
-      ac3: s(ac3),
-      ac4: su(ac4),
-      ac5: su(ac5),
-      ac6: su(ac6),
-      b1: s(b1),
-      b2: s(b2),
-      mb: s(mb),
-      mc: s(mc),
-      md: s(md)
+      ac1: swap(ac1),
+      ac2: swap(ac2),
+      ac3: swap(ac3),
+      ac4: swap_unsigned(ac4),
+      ac5: swap_unsigned(ac5),
+      ac6: swap_unsigned(ac6),
+      b1: swap(b1),
+      b2: swap(b2),
+      mb: swap(mb),
+      mc: swap(mc),
+      md: swap(md)
     }
   end
 
@@ -77,13 +77,13 @@ defmodule BMP280.BMP180Calibration do
   defp p(b7, b4) when b7 < 0x80000000, do: b7 * 2 / b4
   defp p(b7, b4), do: b7 / b4 * 2
 
-  defp s(data) do
+  defp swap(data) do
     <<a::8, b::8>> = <<data::16>>
     <<data::little-signed-16>> = <<b::8, a::8>>
     data
   end
 
-  defp su(data) do
+  defp swap_unsigned(data) do
     <<a::8, b::8>> = <<data::16>>
     <<data::little-unsigned-16>> = <<b::8, a::8>>
     data

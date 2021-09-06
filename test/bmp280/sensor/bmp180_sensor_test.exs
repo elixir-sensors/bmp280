@@ -19,19 +19,19 @@ defmodule BMP280.BME180SensorTest do
   }
 
   @bme180_calibration2 %{
-               ac1: 6438,
-               ac2: -1095,
-               ac3: -14136,
-               ac4: 34261,
-               ac5: 25676,
-               ac6: 16257,
-               b1: 6515,
-               b2: 40,
-               mb: -32768,
-               mc: -11786,
-               md: 2408,
-               type: :bmp180
-             }
+    ac1: 6438,
+    ac2: -1095,
+    ac3: -14136,
+    ac4: 34261,
+    ac5: 25676,
+    ac6: 16257,
+    b1: 6515,
+    b2: 40,
+    mb: -32768,
+    mc: -11786,
+    md: 2408,
+    type: :bmp180
+  }
 
   test "bme180 1 calculations" do
     raw_temperature = <<108, 250, 0>>
@@ -52,6 +52,6 @@ defmodule BMP280.BME180SensorTest do
     measurement = BMP180Sensor.measurement_from_raw_samples(raw_temperature, raw_pressure, state)
 
     assert_in_delta 22.35, measurement.temperature_c, 0.05
-    assert_in_delta 101132.0, measurement.pressure_pa, 0.5
+    assert_in_delta 101_132.0, measurement.pressure_pa, 0.5
   end
 end

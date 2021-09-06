@@ -15,8 +15,10 @@ defmodule BMP280.BMP180Sensor do
   @impl true
   def read(%{transport: transport} = state) do
     BMP180Comm.set_temperature_reading(transport)
+    :timer.sleep(10)
     {:ok, raw_temperature} = BMP180Comm.read_raw_samples(transport)
     BMP180Comm.set_pressure_reading(transport)
+    :timer.sleep(10)
     {:ok, raw_pressure} = BMP180Comm.read_raw_samples(transport)
     {:ok, measurement_from_raw_samples(raw_temperature, raw_pressure, state)}
   end
