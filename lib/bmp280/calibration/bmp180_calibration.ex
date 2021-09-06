@@ -27,18 +27,17 @@ defmodule BMP280.BMP180Calibration do
 
   @spec from_binary(binary) :: t()
   def from_binary(
-        <<ac1::little-16, ac2::little-16, ac3::little-16, ac4::little-unsigned-16,
-          ac5::little-unsigned-16, ac6::little-unsigned-16, b1::little-16, b2::little-16,
-          mb::little-16, mc::little-16, md::little-16>>
+        <<ac1::16, ac2::16, ac3::16, ac4::16, ac5::16, ac6::16, b1::16, b2::16, mb::16, mc::16,
+          md::16>>
       ) do
     %{
       type: :bmp180,
       ac1: s(ac1),
       ac2: s(ac2),
       ac3: s(ac3),
-      ac4: s(ac4),
-      ac5: s(ac5),
-      ac6: s(ac6),
+      ac4: su(ac4),
+      ac5: su(ac5),
+      ac6: su(ac6),
       b1: s(b1),
       b2: s(b2),
       mb: s(mb),
@@ -47,16 +46,16 @@ defmodule BMP280.BMP180Calibration do
     }
   end
 
-  @spec raw_to_temperature(t(), integer()) :: float()
-  def raw_to_temperature(cal, raw_temp) do
+  @spec raw_to_temperature(t(), <<_::24>>) :: float()
+  def raw_to_temperature(cal, <<raw_temp::16, _::8>>) do
     x1 = (raw_temp - cal.ac6) * cal.ac5 / @two_15
     x2 = cal.mc * @two_11 / (x1 + cal.md)
     b5 = x1 + x2
     (b5 + 8) / @two_4 / 10
   end
 
-  @spec raw_to_pressure(t(), number(), number()) :: float()
-  def raw_to_pressure(cal, temp, raw_pressure) do
+  @spec raw_to_pressure(t(), number(), <<_::24>>) :: float()
+  def raw_to_pressure(cal, temp, <<raw_pressure::16, _::8>>) do
     b5 = temp * 10 * @two_4 - 8
     b6 = b5 - 4000
     x1 = cal.b2 * (b6 * b6) / @two_12 / @two_11
@@ -78,5 +77,15 @@ defmodule BMP280.BMP180Calibration do
   defp p(b7, b4) when b7 < 0x80000000, do: b7 * 2 / b4
   defp p(b7, b4), do: b7 / b4 * 2
 
-  defp s(data), do: data
+  defp s(data) do
+    <<a::8, b::8>> = <<data::16>>
+    <<data::little-signed-16>> = <<b::8, a::8>>
+    data
+  end
+
+  defp su(data) do
+    <<a::8, b::8>> = <<data::16>>
+    <<data::little-unsigned-16>> = <<b::8, a::8>>
+    data
+  end
 end

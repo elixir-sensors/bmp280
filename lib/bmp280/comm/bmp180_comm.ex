@@ -7,8 +7,8 @@ defmodule BMP280.BMP180Comm do
   @ctrl_meas_register 0xF4
   @data_msb_register 0xF6
 
-  @read_temp <<0xF4, 0x2E>>
-  @read_pressure <<0xF4, 0x34>>
+  @read_temp 0x2E
+  @read_pressure 0x34
 
   @spec set_temperature_reading(Transport.t()) :: :ok | {:error, any()}
   def set_temperature_reading(transport) do
@@ -35,6 +35,6 @@ defmodule BMP280.BMP180Comm do
 
   @spec read_raw_samples(Transport.t()) :: {:error, any} | {:ok, <<_::16>>}
   def read_raw_samples(transport) do
-    Transport.read(transport, @data_msb_register, 2)
+   Transport.read(transport, @data_msb_register, 3)
   end
 end

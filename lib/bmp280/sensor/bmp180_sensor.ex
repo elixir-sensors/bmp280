@@ -24,26 +24,22 @@ defmodule BMP280.BMP180Sensor do
   @spec measurement_from_raw_samples(<<_::16>>, <<_::16>>, BMP180.Sensor.t()) ::
           BMP180.Measurement.t()
   def measurement_from_raw_samples(raw_temperature, raw_pressure, state) do
-    <<raw_temperature::16>> = s(raw_temperature)
-    <<raw_pressure::16>> = s(raw_pressure)
     %{calibration: calibration, sea_level_pa: sea_level_pa} = state
 
     temperature_c = BMP180Calibration.raw_to_temperature(calibration, raw_temperature)
     pressure_pa = BMP180Calibration.raw_to_pressure(calibration, temperature_c, raw_pressure)
 
     # Derived calculations
-    # altitude_m = Calc.pressure_to_altitude(pressure_pa, sea_level_pa)
+    altitude_m = Calc.pressure_to_altitude(pressure_pa, sea_level_pa)
 
     %Measurement{
       temperature_c: temperature_c,
       pressure_pa: pressure_pa,
-      altitude_m: :unknown,
+      altitude_m: altitude_m,
       humidity_rh: :unknown,
       dew_point_c: :unknown,
       gas_resistance_ohms: :unknown,
       timestamp_ms: System.monotonic_time(:millisecond)
     }
   end
-
-  defp s(data), do: data
 end
