@@ -14,6 +14,7 @@ defmodule BMP280.Comm do
     end
   end
 
+  defp id_to_type(0x55), do: :bmp180
   defp id_to_type(0x58), do: :bmp280
   defp id_to_type(0x60), do: :bme280
   defp id_to_type(0x61), do: :bme680
