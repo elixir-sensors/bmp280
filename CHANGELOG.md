@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.2.9
+
+* New features
+  * Add BMP180 support
+
 ## v0.2.8
 
 * Improvements
