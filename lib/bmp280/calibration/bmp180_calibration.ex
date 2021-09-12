@@ -3,17 +3,17 @@ defmodule BMP280.BMP180Calibration do
 
   @type t() :: %{
           type: :bmp180,
-          ac1: integer,
-          ac2: integer,
-          ac3: integer,
-          ac4: integer,
-          ac5: integer,
-          ac6: integer,
-          b1: integer,
-          b2: integer,
-          mb: integer,
-          mc: integer,
-          md: integer
+          ac1: integer(),
+          ac2: integer(),
+          ac3: integer(),
+          ac4: char(),
+          ac5: char(),
+          ac6: char(),
+          b1: integer(),
+          b2: integer(),
+          mb: integer(),
+          mc: integer(),
+          md: integer()
         }
 
   @two_2 :math.pow(2, 2)
@@ -25,24 +25,25 @@ defmodule BMP280.BMP180Calibration do
   @two_15 :math.pow(2, 15)
   @two_16 :math.pow(2, 16)
 
-  @spec from_binary(binary) :: t()
+  @spec from_binary(<<_::176>>) :: t()
   def from_binary(
-        <<ac1::16, ac2::16, ac3::16, ac4::16, ac5::16, ac6::16, b1::16, b2::16, mb::16, mc::16,
-          md::16>>
+        <<ac1::big-signed-16, ac2::big-signed-16, ac3::big-signed-16, ac4::big-unsigned-16,
+          ac5::big-unsigned-16, ac6::big-unsigned-16, b1::big-signed-16, b2::big-signed-16,
+          mb::big-signed-16, mc::big-signed-16, md::big-signed-16>>
       ) do
     %{
       type: :bmp180,
-      ac1: swap(ac1),
-      ac2: swap(ac2),
-      ac3: swap(ac3),
-      ac4: swap_unsigned(ac4),
-      ac5: swap_unsigned(ac5),
-      ac6: swap_unsigned(ac6),
-      b1: swap(b1),
-      b2: swap(b2),
-      mb: swap(mb),
-      mc: swap(mc),
-      md: swap(md)
+      ac1: ac1,
+      ac2: ac2,
+      ac3: ac3,
+      ac4: ac4,
+      ac5: ac5,
+      ac6: ac6,
+      b1: b1,
+      b2: b2,
+      mb: mb,
+      mc: mc,
+      md: md
     }
   end
 
@@ -76,16 +77,4 @@ defmodule BMP280.BMP180Calibration do
 
   defp p(b7, b4) when b7 < 0x80000000, do: b7 * 2 / b4
   defp p(b7, b4), do: b7 / b4 * 2
-
-  defp swap(data) do
-    <<a::8, b::8>> = <<data::16>>
-    <<data::little-signed-16>> = <<b::8, a::8>>
-    data
-  end
-
-  defp swap_unsigned(data) do
-    <<a::8, b::8>> = <<data::16>>
-    <<data::little-unsigned-16>> = <<b::8, a::8>>
-    data
-  end
 end

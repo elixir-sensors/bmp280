@@ -14,17 +14,17 @@ defmodule BMP280.BMP180Sensor do
 
   @impl true
   def read(%{transport: transport} = state) do
-    BMP180Comm.set_temperature_reading(transport)
-    :timer.sleep(10)
+    :ok = BMP180Comm.set_temperature_reading(transport)
+    Process.sleep(10)
     {:ok, raw_temperature} = BMP180Comm.read_raw_samples(transport)
-    BMP180Comm.set_pressure_reading(transport)
-    :timer.sleep(10)
+    :ok = BMP180Comm.set_pressure_reading(transport)
+    Process.sleep(10)
     {:ok, raw_pressure} = BMP180Comm.read_raw_samples(transport)
     {:ok, measurement_from_raw_samples(raw_temperature, raw_pressure, state)}
   end
 
-  @spec measurement_from_raw_samples(<<_::16>>, <<_::16>>, BMP180.Sensor.t()) ::
-          BMP180.Measurement.t()
+  @spec measurement_from_raw_samples(<<_::24>>, <<_::24>>, BMP280.Sensor.t()) ::
+          BMP280.Measurement.t()
   def measurement_from_raw_samples(raw_temperature, raw_pressure, state) do
     %{calibration: calibration, sea_level_pa: sea_level_pa} = state
 

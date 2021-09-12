@@ -3,12 +3,15 @@ defmodule BMP280.BMP180Comm do
 
   alias BMP280.Transport
 
-  @calib00_register 0xAA
+  @calib_register 0xAA
+  @calib_size 22
   @ctrl_meas_register 0xF4
-  @data_msb_register 0xF6
 
-  @read_temp 0x2E
-  @read_pressure 0x34
+  @data_msb_register 0xF6
+  @data_size 3
+
+  @read_temp <<0x2E::8>>
+  @read_pressure <<0x34::8>>
 
   @spec set_temperature_reading(Transport.t()) :: :ok | {:error, any()}
   def set_temperature_reading(transport) do
@@ -30,11 +33,11 @@ defmodule BMP280.BMP180Comm do
 
   @spec read_calibration(Transport.t()) :: {:error, any} | {:ok, <<_::176>>}
   def read_calibration(transport) do
-    Transport.read(transport, @calib00_register, 22)
+    Transport.read(transport, @calib_register, @calib_size)
   end
 
-  @spec read_raw_samples(Transport.t()) :: {:error, any} | {:ok, <<_::16>>}
+  @spec read_raw_samples(Transport.t()) :: {:error, any} | {:ok, <<_::24>>}
   def read_raw_samples(transport) do
-    Transport.read(transport, @data_msb_register, 3)
+    Transport.read(transport, @data_msb_register, @data_size)
   end
 end
