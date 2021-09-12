@@ -3,17 +3,17 @@ defmodule BMP280.BMP180Calibration do
 
   @type t() :: %{
           type: :bmp180,
-          ac1: integer(),
-          ac2: integer(),
-          ac3: integer(),
-          ac4: char(),
-          ac5: char(),
-          ac6: char(),
-          b1: integer(),
-          b2: integer(),
-          mb: integer(),
-          mc: integer(),
-          md: integer()
+          ac1: integer,
+          ac2: integer,
+          ac3: integer,
+          ac4: char,
+          ac5: char,
+          ac6: char,
+          b1: integer,
+          b2: integer,
+          mb: integer,
+          mc: integer,
+          md: integer
         }
 
   @two_2 :math.pow(2, 2)
