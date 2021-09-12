@@ -4,6 +4,7 @@
 [![CircleCI](https://circleci.com/gh/elixir-sensors/bmp280.svg?style=svg)](https://circleci.com/gh/elixir-sensors/bmp280)
 
 Read temperature and pressure from Bosch
+BMP180,
 [BMP280](https://www.bosch-sensortec.com/products/environmental-sensors/pressure-sensors/bmp280/),
 [BME280](https://www.bosch-sensortec.com/products/environmental-sensors/humidity-sensors-bme280/),
 and
