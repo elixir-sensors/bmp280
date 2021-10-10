@@ -30,4 +30,15 @@ defmodule BMP280.Calc do
 
     243.04 * (log_rh + 17.625 * t / (243.04 + t)) / (17.625 - log_rh - 17.625 * t / (243.04 + t))
   end
+
+  def dew_point(_humidity_rh, _temperature_c) do
+    # Handle out-of-range inputs. This only happens under extreme conditions.
+    # As for what to return, there's nothing obviously great. According to the
+    # Internets, the lowest recorded humidity was in Iran and had a dew point
+    # of -33.2. I've observed dew points in the -30s being returned from above.
+    # The logic for returning -40 is that it's both lower than what was
+    # observed and somewhat special since it's the Celsius/Fahrenheit crossover
+    # point.
+    -40
+  end
 end
