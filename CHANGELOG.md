@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.2.10
+
+* Fixes
+  * Fix dew point calculation from raising when sensor can't measure the
+    relative humidity
+
 ## v0.2.9
 
 * New features
