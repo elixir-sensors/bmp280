@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.2.11
+
+* Improvements
+  * Support both circuits_i2c 1.0 and 0.3.x
+
 ## v0.2.10
 
 * Fixes
