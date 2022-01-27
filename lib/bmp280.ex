@@ -2,7 +2,7 @@ defmodule BMP280 do
   use GenServer
   require Logger
 
-  alias BMP280.{Calc, Comm, Measurement, Transport}
+  alias BMP280.{Calc, Comm, Measurement, Sensor, Transport}
 
   @sea_level_pa 100_000
   @default_bmp280_bus_address 0x77
@@ -118,6 +118,7 @@ defmodule BMP280 do
   def init(args) do
     bus_name = Keyword.get(args, :bus_name, "i2c-1")
     bus_address = Keyword.get(args, :bus_address, @default_bmp280_bus_address)
+    sea_level_pa = Keyword.get(args, :sea_level_pa, @sea_level_pa)
 
     Logger.info(
       "[BMP280] Starting on bus #{bus_name} at address #{inspect(bus_address, base: :hex)}"
@@ -125,13 +126,12 @@ defmodule BMP280 do
 
     with {:ok, transport} <- Transport.open(bus_name, bus_address),
          {:ok, sensor_type} <- Comm.sensor_type(transport) do
-      state = %{
-        transport: transport,
-        calibration: nil,
-        sea_level_pa: Keyword.get(args, :sea_level_pa, @sea_level_pa),
-        sensor_type: sensor_type,
-        last_measurement: nil
-      }
+      state =
+        Sensor.new(
+          transport: transport,
+          sea_level_pa: sea_level_pa,
+          sensor_type: sensor_type
+        )
 
       {:ok, state, {:continue, :init_sensor}}
     else
@@ -146,8 +146,8 @@ defmodule BMP280 do
 
     new_state =
       state
-      |> init_sensor()
-      |> read_and_put_new_measurement()
+      |> state.init_fn.()
+      |> state.read_fn.()
 
     schedule_measurement()
 
@@ -183,34 +183,10 @@ defmodule BMP280 do
   @impl GenServer
   def handle_info(:schedule_measurement, state) do
     schedule_measurement()
-    {:noreply, read_and_put_new_measurement(state)}
+    {:noreply, state.read_fn.(state)}
   end
 
   defp schedule_measurement() do
     Process.send_after(self(), :schedule_measurement, @polling_interval)
   end
-
-  defp init_sensor(state) do
-    state.sensor_type |> sensor_module() |> apply(:init, [state])
-  end
-
-  defp read_sensor(state) do
-    state.sensor_type |> sensor_module() |> apply(:read, [state])
-  end
-
-  defp read_and_put_new_measurement(state) do
-    case read_sensor(state) do
-      {:ok, measurement} ->
-        %{state | last_measurement: measurement}
-
-      {:error, reason} ->
-        Logger.error("[BMP280] Error reading measurement: #{inspect(reason)}")
-        state
-    end
-  end
-
-  defp sensor_module(:bmp180), do: BMP280.BMP180Sensor
-  defp sensor_module(:bmp280), do: BMP280.BMP280Sensor
-  defp sensor_module(:bme280), do: BMP280.BME280Sensor
-  defp sensor_module(:bme680), do: BMP280.BME680Sensor
 end
