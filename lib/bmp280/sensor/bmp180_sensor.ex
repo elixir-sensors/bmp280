@@ -1,30 +1,35 @@
 defmodule BMP280.BMP180Sensor do
   @moduledoc false
 
-  alias BMP280.{BMP180Calibration, BMP180Comm, Calc, Measurement}
+  alias BMP280.{Calc, Measurement, Sensor}
+  alias BMP280.{BMP180Calibration, BMP180Comm, BMP180Sensor}
 
-  @behaviour BMP280.Sensor
+  defstruct [
+    :calibration,
+    :sea_level_pa,
+    :sensor_type,
+    :transport
+  ]
 
-  @impl true
-  def init(%{sensor_type: :bmp180, transport: transport} = state) do
-    with {:ok, calibration_binary} <- BMP180Comm.read_calibration(transport),
-         calibration <- BMP180Calibration.from_binary(calibration_binary),
-         do: %{state | calibration: calibration}
+  defimpl Sensor do
+    def init(%{sensor_type: :bmp180, transport: transport} = state) do
+      with {:ok, calibration_binary} <- BMP180Comm.read_calibration(transport),
+           calibration <- BMP180Calibration.from_binary(calibration_binary),
+           do: %{state | calibration: calibration}
+    end
+
+    def read(%{transport: transport} = state) do
+      :ok = BMP180Comm.set_temperature_reading(transport)
+      Process.sleep(10)
+      {:ok, raw_temperature} = BMP180Comm.read_raw_samples(transport)
+      :ok = BMP180Comm.set_pressure_reading(transport)
+      Process.sleep(10)
+      {:ok, raw_pressure} = BMP180Comm.read_raw_samples(transport)
+      {:ok, BMP180Sensor.measurement_from_raw_samples(raw_temperature, raw_pressure, state)}
+    end
   end
 
-  @impl true
-  def read(%{transport: transport} = state) do
-    :ok = BMP180Comm.set_temperature_reading(transport)
-    Process.sleep(10)
-    {:ok, raw_temperature} = BMP180Comm.read_raw_samples(transport)
-    :ok = BMP180Comm.set_pressure_reading(transport)
-    Process.sleep(10)
-    {:ok, raw_pressure} = BMP180Comm.read_raw_samples(transport)
-    {:ok, measurement_from_raw_samples(raw_temperature, raw_pressure, state)}
-  end
-
-  @spec measurement_from_raw_samples(<<_::24>>, <<_::24>>, BMP280.Sensor.t()) ::
-          BMP280.Measurement.t()
+  @spec measurement_from_raw_samples(<<_::24>>, <<_::24>>, Sensor.t()) :: Measurement.t()
   def measurement_from_raw_samples(raw_temperature, raw_pressure, state) do
     %{calibration: calibration, sea_level_pa: sea_level_pa} = state
 

@@ -1,9 +1,15 @@
 defmodule BMP280.BME680Sensor do
   @moduledoc false
 
-  alias BMP280.{BME680Calibration, BME680Comm, Calc, Comm, Measurement}
+  alias BMP280.{Calc, Comm, Measurement, Sensor}
+  alias BMP280.{BME680Calibration, BME680Comm, BME680Sensor}
 
-  @behaviour BMP280.Sensor
+  defstruct [
+    :calibration,
+    :sea_level_pa,
+    :sensor_type,
+    :transport
+  ]
 
   @type raw_samples() :: %{
           raw_pressure: non_neg_integer(),
@@ -16,41 +22,48 @@ defmodule BMP280.BME680Sensor do
   @type heater_duration_ms() :: 1..4032
   @type heater_temperature_c() :: 200..400
 
-  @heater_temperature_c 300
-  @heater_duration_ms 100
-  @ambient_temperature_c 25
+  defimpl Sensor do
+    @heater_temperature_c 300
+    @heater_duration_ms 100
+    @ambient_temperature_c 25
 
-  @impl true
-  def init(%{transport: transport} = initial_state) do
-    with :ok <- Comm.reset(transport),
-         {:ok, cal_binary} <- BME680Comm.read_calibration(transport),
-         calibration <- BME680Calibration.from_binary(cal_binary),
-         :ok <- BME680Comm.set_oversampling(transport),
-         :ok <- BME680Comm.set_filter(transport),
-         :ok <- BME680Comm.enable_gas_sensor(transport),
-         :ok <-
-           BME680Comm.set_gas_heater_temperature(
-             transport,
-             heater_resistance_code(calibration, @heater_temperature_c, @ambient_temperature_c)
-           ),
-         :ok <-
-           BME680Comm.set_gas_heater_duration(
-             transport,
-             heater_duration_code(@heater_duration_ms)
-           ),
-         :ok <- BME680Comm.set_gas_heater_profile(transport, 0),
-         do: %{initial_state | calibration: calibration}
-  end
+    def init(%{transport: transport} = initial_state) do
+      with :ok <- Comm.reset(transport),
+           {:ok, cal_binary} <- BME680Comm.read_calibration(transport),
+           calibration <- BME680Calibration.from_binary(cal_binary),
+           :ok <- BME680Comm.set_oversampling(transport),
+           :ok <- BME680Comm.set_filter(transport),
+           :ok <- BME680Comm.enable_gas_sensor(transport),
+           :ok <-
+             BME680Comm.set_gas_heater_temperature(
+               transport,
+               BME680Sensor.heater_resistance_code(
+                 calibration,
+                 @heater_temperature_c,
+                 @ambient_temperature_c
+               )
+             ),
+           :ok <-
+             BME680Comm.set_gas_heater_duration(
+               transport,
+               BME680Sensor.heater_duration_code(@heater_duration_ms)
+             ),
+           :ok <- BME680Comm.set_gas_heater_profile(transport, 0),
+           do: %{initial_state | calibration: calibration}
+    end
 
-  @impl true
-  def read(%{transport: transport} = state) do
-    case BME680Comm.read_raw_samples(transport) do
-      {:ok, raw_samples} -> {:ok, measurement_from_raw_samples(raw_samples, state)}
-      error -> error
+    def read(%{transport: transport} = state) do
+      case BME680Comm.read_raw_samples(transport) do
+        {:ok, raw_samples} ->
+          {:ok, BME680Sensor.measurement_from_raw_samples(raw_samples, state)}
+
+        error ->
+          error
+      end
     end
   end
 
-  @spec measurement_from_raw_samples(<<_::80>>, BMP280.Sensor.t()) :: BMP280.Measurement.t()
+  @spec measurement_from_raw_samples(<<_::80>>, Sensor.t()) :: Measurement.t()
   def measurement_from_raw_samples(raw_samples, state) do
     <<raw_pressure::20, _::4, raw_temperature::20, _::4, raw_humidity::16, _::16>> = raw_samples
     <<_::64, raw_gas_resistance::10, _::2, raw_gas_range::4>> = raw_samples

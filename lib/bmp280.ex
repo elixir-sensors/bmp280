@@ -2,7 +2,7 @@ defmodule BMP280 do
   use GenServer
   require Logger
 
-  alias BMP280.{Calc, Comm, Measurement, Transport}
+  alias BMP280.{Calc, Comm, Measurement, Sensor, Transport}
 
   @sea_level_pa 100_000
   @default_bmp280_bus_address 0x77
@@ -118,6 +118,7 @@ defmodule BMP280 do
   def init(args) do
     bus_name = Keyword.get(args, :bus_name, "i2c-1")
     bus_address = Keyword.get(args, :bus_address, @default_bmp280_bus_address)
+    sea_level_pa = Keyword.get(args, :sea_level_pa, @sea_level_pa)
 
     Logger.info(
       "[BMP280] Starting on bus #{bus_name} at address #{inspect(bus_address, base: :hex)}"
@@ -126,11 +127,15 @@ defmodule BMP280 do
     with {:ok, transport} <- Transport.open(bus_name, bus_address),
          {:ok, sensor_type} <- Comm.sensor_type(transport) do
       state = %{
-        transport: transport,
-        calibration: nil,
-        sea_level_pa: Keyword.get(args, :sea_level_pa, @sea_level_pa),
-        sensor_type: sensor_type,
-        last_measurement: nil
+        last_measurement: nil,
+        sensor:
+          struct(
+            sensor_module(sensor_type),
+            calibration: nil,
+            sea_level_pa: sea_level_pa,
+            sensor_type: sensor_type,
+            transport: transport
+          )
       }
 
       {:ok, state, {:continue, :init_sensor}}
@@ -142,11 +147,11 @@ defmodule BMP280 do
 
   @impl GenServer
   def handle_continue(:init_sensor, state) do
-    Logger.info("[BMP280] Initializing sensor type #{state.sensor_type}")
+    Logger.info("[BMP280] Initializing sensor type #{state.sensor.sensor_type}")
 
     new_state =
       state
-      |> init_sensor()
+      |> Map.update!(:sensor, &Sensor.init/1)
       |> read_and_put_new_measurement()
 
     schedule_measurement()
@@ -164,17 +169,19 @@ defmodule BMP280 do
   end
 
   def handle_call(:sensor_type, _from, state) do
-    {:reply, state.sensor_type, state}
+    {:reply, state.sensor.sensor_type, state}
   end
 
   def handle_call({:update_sea_level, new_estimate}, _from, state) do
-    {:reply, :ok, %{state | sea_level_pa: new_estimate}}
+    state = put_in(state.sensor.sea_level_pa, new_estimate)
+    {:reply, :ok, state}
   end
 
   def handle_call({:force_altitude, altitude_m}, _from, state) do
     if state.last_measurement do
       sea_level = Calc.sea_level_pressure(state.last_measurement.pressure_pa, altitude_m)
-      {:reply, :ok, %{state | sea_level_pa: sea_level}}
+      state = put_in(state.sensor.sea_level_pa, sea_level)
+      {:reply, :ok, state}
     else
       {:reply, {:error, :no_measurement}, state}
     end
@@ -190,16 +197,8 @@ defmodule BMP280 do
     Process.send_after(self(), :schedule_measurement, @polling_interval)
   end
 
-  defp init_sensor(state) do
-    state.sensor_type |> sensor_module() |> apply(:init, [state])
-  end
-
-  defp read_sensor(state) do
-    state.sensor_type |> sensor_module() |> apply(:read, [state])
-  end
-
   defp read_and_put_new_measurement(state) do
-    case read_sensor(state) do
+    case Sensor.read(state.sensor) do
       {:ok, measurement} ->
         %{state | last_measurement: measurement}
 
