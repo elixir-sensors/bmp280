@@ -7,13 +7,12 @@ defmodule BMP280.BME280Sensor do
   defstruct [
     :calibration,
     :sea_level_pa,
-    :sensor_type,
     :transport
   ]
 
   defimpl Sensor do
     @impl true
-    def init(%{sensor_type: :bme280, transport: transport} = state) do
+    def init(%{transport: transport} = state) do
       with :ok <- BME280Comm.set_oversampling(transport),
            {:ok, calibration_binary} <- BME280Comm.read_calibration(transport) do
         calibration = BME280Calibration.from_binary(calibration_binary)

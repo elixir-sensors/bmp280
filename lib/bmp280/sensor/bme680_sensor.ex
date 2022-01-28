@@ -7,7 +7,6 @@ defmodule BMP280.BME680Sensor do
   defstruct [
     :calibration,
     :sea_level_pa,
-    :sensor_type,
     :transport
   ]
 

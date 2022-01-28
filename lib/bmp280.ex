@@ -128,12 +128,12 @@ defmodule BMP280 do
          {:ok, sensor_type} <- Comm.sensor_type(transport) do
       state = %{
         last_measurement: nil,
+        sensor_type: sensor_type,
         sensor:
           struct(
             sensor_module(sensor_type),
             calibration: nil,
             sea_level_pa: sea_level_pa,
-            sensor_type: sensor_type,
             transport: transport
           )
       }
@@ -147,7 +147,7 @@ defmodule BMP280 do
 
   @impl GenServer
   def handle_continue(:init_sensor, state) do
-    Logger.info("[BMP280] Initializing sensor type #{state.sensor.sensor_type}")
+    Logger.info("[BMP280] Initializing sensor type #{state.sensor_type}")
 
     new_state =
       state
@@ -169,7 +169,7 @@ defmodule BMP280 do
   end
 
   def handle_call(:sensor_type, _from, state) do
-    {:reply, state.sensor.sensor_type, state}
+    {:reply, state.sensor_type, state}
   end
 
   def handle_call({:update_sea_level, new_estimate}, _from, state) do

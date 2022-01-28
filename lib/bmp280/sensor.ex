@@ -6,7 +6,6 @@ defprotocol BMP280.Sensor do
             | BMP280.BME280Calibration.t()
             | BMP280.BME680Calibration.t(),
           sea_level_pa: number(),
-          sensor_type: BMP280.sensor_type(),
           transport: BMP280.Transport.t()
         }
 

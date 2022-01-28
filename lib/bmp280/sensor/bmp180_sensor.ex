@@ -7,13 +7,12 @@ defmodule BMP280.BMP180Sensor do
   defstruct [
     :calibration,
     :sea_level_pa,
-    :sensor_type,
     :transport
   ]
 
   defimpl Sensor do
     @impl true
-    def init(%{sensor_type: :bmp180, transport: transport} = state) do
+    def init(%{transport: transport} = state) do
       with {:ok, calibration_binary} <- BMP180Comm.read_calibration(transport),
            calibration <- BMP180Calibration.from_binary(calibration_binary),
            do: %{state | calibration: calibration}
