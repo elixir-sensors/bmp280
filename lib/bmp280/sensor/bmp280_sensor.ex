@@ -12,6 +12,7 @@ defmodule BMP280.BMP280Sensor do
   ]
 
   defimpl Sensor do
+    @impl true
     def init(%{sensor_type: :bmp280, transport: transport} = state) do
       with :ok <- BMP280Comm.set_oversampling(transport),
            {:ok, calibration_binary} <- BMP280Comm.read_calibration(transport),
@@ -19,6 +20,7 @@ defmodule BMP280.BMP280Sensor do
            do: %{state | calibration: calibration}
     end
 
+    @impl true
     def read(%{transport: transport} = state) do
       case BMP280Comm.read_raw_samples(transport) do
         {:ok, raw_samples} -> {:ok, BMP280Sensor.measurement_from_raw_samples(raw_samples, state)}

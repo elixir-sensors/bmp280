@@ -12,12 +12,14 @@ defmodule BMP280.BMP180Sensor do
   ]
 
   defimpl Sensor do
+    @impl true
     def init(%{sensor_type: :bmp180, transport: transport} = state) do
       with {:ok, calibration_binary} <- BMP180Comm.read_calibration(transport),
            calibration <- BMP180Calibration.from_binary(calibration_binary),
            do: %{state | calibration: calibration}
     end
 
+    @impl true
     def read(%{transport: transport} = state) do
       :ok = BMP180Comm.set_temperature_reading(transport)
       Process.sleep(10)

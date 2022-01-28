@@ -27,6 +27,7 @@ defmodule BMP280.BME680Sensor do
     @heater_duration_ms 100
     @ambient_temperature_c 25
 
+    @impl true
     def init(%{transport: transport} = initial_state) do
       with :ok <- Comm.reset(transport),
            {:ok, cal_binary} <- BME680Comm.read_calibration(transport),
@@ -52,6 +53,7 @@ defmodule BMP280.BME680Sensor do
            do: %{initial_state | calibration: calibration}
     end
 
+    @impl true
     def read(%{transport: transport} = state) do
       case BME680Comm.read_raw_samples(transport) do
         {:ok, raw_samples} ->
