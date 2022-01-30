@@ -22,8 +22,11 @@ defmodule BME280.Sensor do
     @impl true
     def read(%{transport: transport} = state) do
       case BME280.Comm.read_raw_samples(transport) do
-        {:ok, raw_samples} -> {:ok, BME280.Sensor.measurement_from_raw_samples(raw_samples, state)}
-        error -> error
+        {:ok, raw_samples} ->
+          {:ok, BME280.Sensor.measurement_from_raw_samples(raw_samples, state)}
+
+        error ->
+          error
       end
     end
   end
