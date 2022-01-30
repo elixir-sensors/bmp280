@@ -1,4 +1,4 @@
-defmodule BMP280.BMP180Calibration do
+defmodule BMP180.Calibration do
   @moduledoc false
 
   @type t() :: %{

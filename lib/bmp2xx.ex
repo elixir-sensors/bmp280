@@ -208,8 +208,8 @@ defmodule BMP2XX do
     end
   end
 
-  defp sensor_module(:bmp180), do: BMP280.BMP180Sensor
-  defp sensor_module(:bmp280), do: BMP280.BMP280Sensor
-  defp sensor_module(:bme280), do: BMP280.BME280Sensor
-  defp sensor_module(:bme680), do: BMP280.BME680Sensor
+  defp sensor_module(:bmp180), do: BMP180.Sensor
+  defp sensor_module(:bmp280), do: BMP280.Sensor
+  defp sensor_module(:bme280), do: BME280.Sensor
+  defp sensor_module(:bme680), do: BME680.Sensor
 end

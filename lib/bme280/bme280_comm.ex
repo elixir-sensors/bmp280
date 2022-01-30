@@ -1,7 +1,7 @@
-defmodule BMP280.BME280Comm do
+defmodule BME280.Comm do
   @moduledoc false
 
-  alias BMP280.Transport
+  alias BMP2XX.Transport
 
   @calib00_register 0x88
   @calib26_register 0xE1

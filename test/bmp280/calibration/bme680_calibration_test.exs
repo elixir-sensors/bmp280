@@ -1,7 +1,6 @@
-defmodule BMP280.BME680CalibrationTest do
+defmodule BME680.CalibrationTest do
   use ExUnit.Case
-  alias BMP280.BME680Calibration
-  doctest BMP280.BME680Calibration
+  doctest BME680.Calibration
 
   test "parse bme680 calibration" do
     raw_calibration = {
@@ -11,7 +10,7 @@ defmodule BMP280.BME680CalibrationTest do
       <<50, 170, 22, 74, 19>>
     }
 
-    assert BME680Calibration.from_binary(raw_calibration) ==
+    assert BME680.Calibration.from_binary(raw_calibration) ==
              %{
                type: :bme680,
                par_t1: 26_195,

@@ -1,7 +1,6 @@
-defmodule BMP280.BME680SensorTest do
+defmodule BME680.SensorTest do
   use ExUnit.Case
-  alias BMP280.BME680Sensor
-  doctest BMP280.BME680Sensor
+  doctest BME680.Sensor
 
   @bme680_calibration %{
     type: :bme680,
@@ -37,7 +36,7 @@ defmodule BMP280.BME680SensorTest do
     raw_samples = <<393_705::20, 0::4, 480_732::20, 0::4, 16_820::16, 666::10, 0::2, 11::4>>
     state = %{calibration: @bme680_calibration, sea_level_pa: 100_000}
 
-    measurement = BME680Sensor.measurement_from_raw_samples(raw_samples, state)
+    measurement = BME680.Sensor.measurement_from_raw_samples(raw_samples, state)
 
     assert_in_delta 19.3113, measurement.temperature_c, 0.0001
     assert_in_delta 100_977.52, measurement.pressure_pa, 0.01

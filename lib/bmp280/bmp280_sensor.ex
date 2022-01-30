@@ -1,8 +1,7 @@
-defmodule BMP280.BMP280Sensor do
+defmodule BMP280.Sensor do
   @moduledoc false
 
-  alias BMP280.{Calc, Measurement, Sensor}
-  alias BMP280.{BMP280Calibration, BMP280Comm, BMP280Sensor}
+  alias BMP2XX.{Calc, Measurement, Sensor}
 
   defstruct [
     :calibration,
@@ -13,16 +12,16 @@ defmodule BMP280.BMP280Sensor do
   defimpl Sensor do
     @impl true
     def init(%{transport: transport} = state) do
-      with :ok <- BMP280Comm.set_oversampling(transport),
-           {:ok, calibration_binary} <- BMP280Comm.read_calibration(transport),
-           calibration <- BMP280Calibration.from_binary(calibration_binary),
+      with :ok <- BMP280.Comm.set_oversampling(transport),
+           {:ok, calibration_binary} <- BMP280.Comm.read_calibration(transport),
+           calibration <- BMP280.Calibration.from_binary(calibration_binary),
            do: %{state | calibration: calibration}
     end
 
     @impl true
     def read(%{transport: transport} = state) do
-      case BMP280Comm.read_raw_samples(transport) do
-        {:ok, raw_samples} -> {:ok, BMP280Sensor.measurement_from_raw_samples(raw_samples, state)}
+      case BMP280.Comm.read_raw_samples(transport) do
+        {:ok, raw_samples} -> {:ok, BMP280.Sensor.measurement_from_raw_samples(raw_samples, state)}
         error -> error
       end
     end
@@ -33,8 +32,8 @@ defmodule BMP280.BMP280Sensor do
     <<raw_pressure::20, _::4, raw_temperature::20, _::4>> = raw_samples
     %{calibration: calibration, sea_level_pa: sea_level_pa} = state
 
-    temperature_c = BMP280Calibration.raw_to_temperature(calibration, raw_temperature)
-    pressure_pa = BMP280Calibration.raw_to_pressure(calibration, temperature_c, raw_pressure)
+    temperature_c = BMP280.Calibration.raw_to_temperature(calibration, raw_temperature)
+    pressure_pa = BMP280.Calibration.raw_to_pressure(calibration, temperature_c, raw_pressure)
 
     # Derived calculations
     altitude_m = Calc.pressure_to_altitude(pressure_pa, sea_level_pa)

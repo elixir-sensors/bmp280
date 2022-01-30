@@ -1,7 +1,7 @@
-defmodule BMP280.CalcTest do
+defmodule BMP2XX.CalcTest do
   use ExUnit.Case
-  alias BMP280.Calc
-  doctest BMP280.Calc
+  alias BMP2XX.Calc
+  doctest BMP2XX.Calc
 
   test "altitude calculation" do
     sea_level_pa = 101_325

@@ -1,8 +1,7 @@
-defmodule BMP280.BME280Sensor do
+defmodule BME280.Sensor do
   @moduledoc false
 
-  alias BMP280.{Calc, Measurement, Sensor}
-  alias BMP280.{BME280Calibration, BME280Comm, BME280Sensor}
+  alias BMP2XX.{Calc, Measurement, Sensor}
 
   defstruct [
     :calibration,
@@ -13,17 +12,17 @@ defmodule BMP280.BME280Sensor do
   defimpl Sensor do
     @impl true
     def init(%{transport: transport} = state) do
-      with :ok <- BME280Comm.set_oversampling(transport),
-           {:ok, calibration_binary} <- BME280Comm.read_calibration(transport) do
-        calibration = BME280Calibration.from_binary(calibration_binary)
+      with :ok <- BME280.Comm.set_oversampling(transport),
+           {:ok, calibration_binary} <- BME280.Comm.read_calibration(transport) do
+        calibration = BME280.Calibration.from_binary(calibration_binary)
         %{state | calibration: calibration}
       end
     end
 
     @impl true
     def read(%{transport: transport} = state) do
-      case BME280Comm.read_raw_samples(transport) do
-        {:ok, raw_samples} -> {:ok, BME280Sensor.measurement_from_raw_samples(raw_samples, state)}
+      case BME280.Comm.read_raw_samples(transport) do
+        {:ok, raw_samples} -> {:ok, BME280.Sensor.measurement_from_raw_samples(raw_samples, state)}
         error -> error
       end
     end
@@ -34,9 +33,9 @@ defmodule BMP280.BME280Sensor do
     <<raw_pressure::20, _::4, raw_temperature::20, _::4, raw_humidity::16>> = raw_samples
     %{calibration: calibration, sea_level_pa: sea_level_pa} = state
 
-    temperature_c = BME280Calibration.raw_to_temperature(calibration, raw_temperature)
-    pressure_pa = BME280Calibration.raw_to_pressure(calibration, temperature_c, raw_pressure)
-    humidity_rh = BME280Calibration.raw_to_humidity(calibration, temperature_c, raw_humidity)
+    temperature_c = BME280.Calibration.raw_to_temperature(calibration, raw_temperature)
+    pressure_pa = BME280.Calibration.raw_to_pressure(calibration, temperature_c, raw_pressure)
+    humidity_rh = BME280.Calibration.raw_to_humidity(calibration, temperature_c, raw_humidity)
 
     # Derived calculations
     altitude_m = Calc.pressure_to_altitude(pressure_pa, sea_level_pa)

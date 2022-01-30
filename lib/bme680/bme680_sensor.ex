@@ -1,8 +1,7 @@
-defmodule BMP280.BME680Sensor do
+defmodule BME680.Sensor do
   @moduledoc false
 
-  alias BMP280.{Calc, Comm, Measurement, Sensor}
-  alias BMP280.{BME680Calibration, BME680Comm, BME680Sensor}
+  alias BMP2XX.{Calc, Comm, Measurement, Sensor}
 
   defstruct [
     :calibration,
@@ -29,34 +28,34 @@ defmodule BMP280.BME680Sensor do
     @impl true
     def init(%{transport: transport} = initial_state) do
       with :ok <- Comm.reset(transport),
-           {:ok, cal_binary} <- BME680Comm.read_calibration(transport),
-           calibration <- BME680Calibration.from_binary(cal_binary),
-           :ok <- BME680Comm.set_oversampling(transport),
-           :ok <- BME680Comm.set_filter(transport),
-           :ok <- BME680Comm.enable_gas_sensor(transport),
+           {:ok, cal_binary} <- BME680.Comm.read_calibration(transport),
+           calibration <- BME680.Calibration.from_binary(cal_binary),
+           :ok <- BME680.Comm.set_oversampling(transport),
+           :ok <- BME680.Comm.set_filter(transport),
+           :ok <- BME680.Comm.enable_gas_sensor(transport),
            :ok <-
-             BME680Comm.set_gas_heater_temperature(
+             BME680.Comm.set_gas_heater_temperature(
                transport,
-               BME680Sensor.heater_resistance_code(
+               BME680.Sensor.heater_resistance_code(
                  calibration,
                  @heater_temperature_c,
                  @ambient_temperature_c
                )
              ),
            :ok <-
-             BME680Comm.set_gas_heater_duration(
+             BME680.Comm.set_gas_heater_duration(
                transport,
-               BME680Sensor.heater_duration_code(@heater_duration_ms)
+               BME680.Sensor.heater_duration_code(@heater_duration_ms)
              ),
-           :ok <- BME680Comm.set_gas_heater_profile(transport, 0),
+           :ok <- BME680.Comm.set_gas_heater_profile(transport, 0),
            do: %{initial_state | calibration: calibration}
     end
 
     @impl true
     def read(%{transport: transport} = state) do
-      case BME680Comm.read_raw_samples(transport) do
+      case BME680.Comm.read_raw_samples(transport) do
         {:ok, raw_samples} ->
-          {:ok, BME680Sensor.measurement_from_raw_samples(raw_samples, state)}
+          {:ok, BME680.Sensor.measurement_from_raw_samples(raw_samples, state)}
 
         error ->
           error
@@ -70,12 +69,12 @@ defmodule BMP280.BME680Sensor do
     <<_::64, raw_gas_resistance::10, _::2, raw_gas_range::4>> = raw_samples
     %{calibration: calibration, sea_level_pa: sea_level_pa} = state
 
-    temperature_c = BME680Calibration.raw_to_temperature(calibration, raw_temperature)
-    pressure_pa = BME680Calibration.raw_to_pressure(calibration, temperature_c, raw_pressure)
-    humidity_rh = BME680Calibration.raw_to_humidity(calibration, temperature_c, raw_humidity)
+    temperature_c = BME680.Calibration.raw_to_temperature(calibration, raw_temperature)
+    pressure_pa = BME680.Calibration.raw_to_pressure(calibration, temperature_c, raw_pressure)
+    humidity_rh = BME680.Calibration.raw_to_humidity(calibration, temperature_c, raw_humidity)
 
     gas_resistance_ohms =
-      BME680Calibration.raw_to_gas_resistance(
+      BME680.Calibration.raw_to_gas_resistance(
         calibration,
         raw_gas_resistance,
         raw_gas_range
@@ -109,10 +108,10 @@ defmodule BMP280.BME680Sensor do
       ...>   res_heat_range: 1,
       ...>   range_switching_error: 1
       ...> }
-      iex> BME680Sensor.heater_resistance_code(cal, 300, 28)
+      iex> BME680.Sensor.heater_resistance_code(cal, 300, 28)
       112
   """
-  @spec heater_resistance_code(BME680Calibration.t(), heater_temperature_c(), integer()) ::
+  @spec heater_resistance_code(BME680.Calibration.t(), heater_temperature_c(), integer()) ::
           integer()
   def heater_resistance_code(cal, heater_temp_c, amb_temp_c) do
     %{
@@ -145,16 +144,16 @@ defmodule BMP280.BME680Sensor do
 
   ## Examples
 
-      iex> BME680Sensor.heater_duration_code(63)
+      iex> BME680.Sensor.heater_duration_code(63)
       63
-      iex> BME680Sensor.heater_duration_code(64)
+      iex> BME680.Sensor.heater_duration_code(64)
       80
-      iex> BME680Sensor.heater_duration_code(100)
+      iex> BME680.Sensor.heater_duration_code(100)
       89
-      iex> BME680Sensor.heater_duration_code(4032)
+      iex> BME680.Sensor.heater_duration_code(4032)
       255
-      iex> BME680Sensor.heater_duration_code(4033)
-      ** (FunctionClauseError) no function clause matching in BMP280.BME680Sensor.heater_duration_code/2
+      iex> BME680.Sensor.heater_duration_code(4033)
+      ** (FunctionClauseError) no function clause matching in BME680.Sensor.heater_duration_code/2
   """
   @spec heater_duration_code(heater_duration_ms(), non_neg_integer()) :: non_neg_integer()
   def heater_duration_code(duration, factor \\ 0)

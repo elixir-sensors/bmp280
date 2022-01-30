@@ -1,4 +1,4 @@
-defmodule BMP280.BME680Calibration do
+defmodule BME680.Calibration do
   @moduledoc false
 
   @type t() :: %{

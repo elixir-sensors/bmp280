@@ -1,7 +1,7 @@
-defmodule BMP280.BME680Comm do
+defmodule BME680.Comm do
   @moduledoc false
 
-  alias BMP280.Transport
+  alias BMP2XX.Transport
 
   @coeff1_register 0x8A
   @coeff2_register 0xE1
@@ -24,10 +24,10 @@ defmodule BMP280.BME680Comm do
 
   @filter_size_3 2
 
-  @spec set_sleep_mode(BMP280.Transport.t()) :: :ok | {:error, any}
+  @spec set_sleep_mode(BMP2XX.Transport.t()) :: :ok | {:error, any}
   def set_sleep_mode(transport), do: set_power_mode(transport, @sleep_mode)
 
-  @spec set_forced_mode(BMP280.Transport.t()) :: :ok | {:error, any}
+  @spec set_forced_mode(BMP2XX.Transport.t()) :: :ok | {:error, any}
   def set_forced_mode(transport), do: set_power_mode(transport, @forced_mode)
 
   defp set_power_mode(transport, mode) do

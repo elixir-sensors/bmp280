@@ -1,8 +1,7 @@
-defmodule BMP280.BMP180Sensor do
+defmodule BMP180.Sensor do
   @moduledoc false
 
-  alias BMP280.{Calc, Measurement, Sensor}
-  alias BMP280.{BMP180Calibration, BMP180Comm, BMP180Sensor}
+  alias BMP2XX.{Calc, Measurement, Sensor}
 
   defstruct [
     :calibration,
@@ -13,20 +12,20 @@ defmodule BMP280.BMP180Sensor do
   defimpl Sensor do
     @impl true
     def init(%{transport: transport} = state) do
-      with {:ok, calibration_binary} <- BMP180Comm.read_calibration(transport),
-           calibration <- BMP180Calibration.from_binary(calibration_binary),
+      with {:ok, calibration_binary} <- BMP180.Comm.read_calibration(transport),
+           calibration <- BMP180.Calibration.from_binary(calibration_binary),
            do: %{state | calibration: calibration}
     end
 
     @impl true
     def read(%{transport: transport} = state) do
-      :ok = BMP180Comm.set_temperature_reading(transport)
+      :ok = BMP180.Comm.set_temperature_reading(transport)
       Process.sleep(10)
-      {:ok, raw_temperature} = BMP180Comm.read_raw_samples(transport)
-      :ok = BMP180Comm.set_pressure_reading(transport)
+      {:ok, raw_temperature} = BMP180.Comm.read_raw_samples(transport)
+      :ok = BMP180.Comm.set_pressure_reading(transport)
       Process.sleep(10)
-      {:ok, raw_pressure} = BMP180Comm.read_raw_samples(transport)
-      {:ok, BMP180Sensor.measurement_from_raw_samples(raw_temperature, raw_pressure, state)}
+      {:ok, raw_pressure} = BMP180.Comm.read_raw_samples(transport)
+      {:ok, BMP180.Sensor.measurement_from_raw_samples(raw_temperature, raw_pressure, state)}
     end
   end
 
@@ -34,8 +33,8 @@ defmodule BMP280.BMP180Sensor do
   def measurement_from_raw_samples(raw_temperature, raw_pressure, state) do
     %{calibration: calibration, sea_level_pa: sea_level_pa} = state
 
-    temperature_c = BMP180Calibration.raw_to_temperature(calibration, raw_temperature)
-    pressure_pa = BMP180Calibration.raw_to_pressure(calibration, temperature_c, raw_pressure)
+    temperature_c = BMP180.Calibration.raw_to_temperature(calibration, raw_temperature)
+    pressure_pa = BMP180.Calibration.raw_to_pressure(calibration, temperature_c, raw_pressure)
 
     # Derived calculations
     altitude_m = Calc.pressure_to_altitude(pressure_pa, sea_level_pa)

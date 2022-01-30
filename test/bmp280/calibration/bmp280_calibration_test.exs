@@ -1,14 +1,13 @@
-defmodule BMP280.BMP280CalibrationTest do
+defmodule BMP280.CalibrationTest do
   use ExUnit.Case
-  alias BMP280.BMP280Calibration
-  doctest BMP280.BMP280Calibration
+  doctest BMP280.Calibration
 
   test "parse bmp280 1 calibration" do
     raw_calibration =
       <<29, 110, 173, 102, 50, 0, 27, 143, 56, 214, 208, 11, 84, 43, 15, 255, 249, 255, 12, 48,
         32, 209, 136, 19>>
 
-    assert BMP280Calibration.from_binary(raw_calibration) ==
+    assert BMP280.Calibration.from_binary(raw_calibration) ==
              %{
                type: :bmp280,
                dig_p1: 36_635,
