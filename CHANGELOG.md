@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.2.12
+
+* Improvements
+  * Update online documentation using ex_doc 0.29
+  * Bump elixir versions in ci
+
 ## v0.2.11
 
 * Improvements
