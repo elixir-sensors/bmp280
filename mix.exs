@@ -59,7 +59,7 @@ defmodule BMP280.MixProject do
 
   defp dialyzer() do
     [
-      flags: [:race_conditions, :unmatched_returns, :error_handling, :underspecs]
+      flags: [:extra_return, :unmatched_returns, :error_handling, :underspecs]
     ]
   end
 
