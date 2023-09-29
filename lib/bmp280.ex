@@ -191,11 +191,11 @@ defmodule BMP280 do
   end
 
   defp init_sensor(state) do
-    state.sensor_type |> sensor_module() |> apply(:init, [state])
+    sensor_module(state.sensor_type).init(state)
   end
 
   defp read_sensor(state) do
-    state.sensor_type |> sensor_module() |> apply(:read, [state])
+    sensor_module(state.sensor_type).read(state)
   end
 
   defp read_and_put_new_measurement(state) do
