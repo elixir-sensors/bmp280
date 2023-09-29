@@ -1,7 +1,10 @@
 defmodule BMP280.BMP280Sensor do
   @moduledoc false
 
-  alias BMP280.{Calc, BMP280Calibration, BMP280Comm, Measurement}
+  alias BMP280.BMP280Calibration
+  alias BMP280.BMP280Comm
+  alias BMP280.Calc
+  alias BMP280.Measurement
 
   @behaviour BMP280.Sensor
 

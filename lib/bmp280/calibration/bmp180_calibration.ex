@@ -27,9 +27,8 @@ defmodule BMP280.BMP180Calibration do
 
   @spec from_binary(<<_::176>>) :: t()
   def from_binary(
-        <<ac1::big-signed-16, ac2::big-signed-16, ac3::big-signed-16, ac4::big-unsigned-16,
-          ac5::big-unsigned-16, ac6::big-unsigned-16, b1::big-signed-16, b2::big-signed-16,
-          mb::big-signed-16, mc::big-signed-16, md::big-signed-16>>
+        <<ac1::signed-16, ac2::signed-16, ac3::signed-16, ac4::16, ac5::16, ac6::16,
+          b1::signed-16, b2::signed-16, mb::signed-16, mc::signed-16, md::signed-16>>
       ) do
     %{
       type: :bmp180,
