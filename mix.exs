@@ -18,7 +18,9 @@ defmodule BMP280.MixProject do
       preferred_cli_env: %{
         docs: :docs,
         "hex.publish": :docs,
-        "hex.build": :docs
+        "hex.build": :docs,
+        dialyzer: :lint,
+        credo: :lint
       }
     ]
   end
@@ -52,9 +54,9 @@ defmodule BMP280.MixProject do
     [
       {:circuits_i2c, "~> 1.0 or ~> 0.3.0"},
       {:ex_doc, "~> 0.29", only: :docs, runtime: false},
-      {:dialyxir, "~> 1.1", only: [:dev, :test], runtime: false},
-      {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
-      {:credo_binary_patterns, "~> 0.2.2", only: [:dev, :test], runtime: false}
+      {:dialyxir, "~> 1.1", only: :lint, runtime: false},
+      {:credo, "~> 1.5", only: :lint, runtime: false},
+      {:credo_binary_patterns, "~> 0.2.2", only: :lint, runtime: false}
     ]
   end
 
