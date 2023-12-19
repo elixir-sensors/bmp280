@@ -52,7 +52,7 @@ defmodule BMP280.MixProject do
 
   defp deps do
     [
-      {:circuits_i2c, "~> 1.0 or ~> 0.3.0"},
+      {:circuits_i2c, "~> 2.0 or ~> 1.0 or ~> 0.3.0"},
       {:ex_doc, "~> 0.29", only: :docs, runtime: false},
       {:dialyxir, "~> 1.1", only: :lint, runtime: false},
       {:credo, "~> 1.5", only: :lint, runtime: false},
