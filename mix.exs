@@ -1,7 +1,7 @@
 defmodule BMP280.MixProject do
   use Mix.Project
 
-  @version "0.2.12"
+  @version "0.2.13"
   @source_url "https://github.com/elixir-sensors/bmp280"
 
   def project do

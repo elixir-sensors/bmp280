@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.2.13
+
+* Changes
+  * Relax circuits_i2c dependency to allow v2.0
+
 ## v0.2.12
 
 * Improvements
