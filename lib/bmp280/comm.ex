@@ -1,3 +1,9 @@
+# SPDX-FileCopyrightText: 2020 Frank Hunleth
+# SPDX-FileCopyrightText: 2021 Daniel Kukula
+# SPDX-FileCopyrightText: 2021 Masatoshi Nishiguchi
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule BMP280.Comm do
   alias BMP280.Transport
 

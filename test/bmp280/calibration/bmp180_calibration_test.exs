@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2021 Daniel Kukula
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule BMP280.BMP180CalibrationTest do
   use ExUnit.Case
   alias BMP280.BMP180Calibration

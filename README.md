@@ -1,7 +1,9 @@
 # BMP280
 
 [![Hex version](https://img.shields.io/hexpm/v/bmp280.svg "Hex version")](https://hex.pm/packages/bmp280)
+[![API docs](https://img.shields.io/hexpm/v/bmp280.svg?label=hexdocs "API docs")](https://hexdocs.pm/bmp280/SHT4X.html)
 [![CircleCI](https://circleci.com/gh/elixir-sensors/bmp280.svg?style=svg)](https://circleci.com/gh/elixir-sensors/bmp280)
+[![REUSE status](https://api.reuse.software/badge/github.com/elixir-sensors/bmp280)](https://api.reuse.software/info/github.com/elixir-sensors/bmp280)
 
 Read temperature and pressure from Bosch
 BMP180,
