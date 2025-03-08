@@ -1,3 +1,8 @@
+# SPDX-FileCopyrightText: 2021 Daniel Kukula
+# SPDX-FileCopyrightText: 2021 Masatoshi Nishiguchi
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule BMP280.Sensor do
   @moduledoc false
 

@@ -3,6 +3,7 @@ defmodule BMP280.MixProject do
 
   @version "0.2.13"
   @source_url "https://github.com/elixir-sensors/bmp280"
+  @reuse_compliance_url "https://api.reuse.software/info/github.com/elixir-sensors/bmp280"
 
   def project do
     [
@@ -42,11 +43,16 @@ defmodule BMP280.MixProject do
         "test",
         "mix.exs",
         "README.md",
-        "LICENSE",
-        "CHANGELOG.md"
+        "CHANGELOG.md",
+        "LICENSES",
+        "NOTICE",
+        "REUSE.toml"
       ],
       licenses: ["Apache-2.0"],
-      links: %{"GitHub" => @source_url}
+      links: %{
+        "GitHub" => @source_url,
+        "REUSE compliance" => @reuse_compliance_url
+      }
     }
   end
 
