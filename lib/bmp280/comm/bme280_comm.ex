@@ -26,11 +26,7 @@ defmodule BMP280.BME280Comm do
     osrs_h = @oversampling_16x
 
     with :ok <- Transport.write(transport, @ctrl_hum_register, <<osrs_h>>) do
-      Transport.write(
-        transport,
-        @ctrl_meas_register,
-        <<osrs_t::size(3), osrs_p::size(3), mode::size(2)>>
-      )
+      Transport.write(transport, @ctrl_meas_register, <<osrs_t::3, osrs_p::3, mode::2>>)
     end
   end
 

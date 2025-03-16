@@ -22,11 +22,7 @@ defmodule BMP280.BMP280Comm do
     osrs_t = @oversampling_2x
     osrs_p = @oversampling_16x
 
-    Transport.write(
-      transport,
-      @ctrl_meas_register,
-      <<osrs_t::size(3), osrs_p::size(3), mode::size(2)>>
-    )
+    Transport.write(transport, @ctrl_meas_register, <<osrs_t::3, osrs_p::3, mode::2>>)
   end
 
   @spec read_calibration(Transport.t()) :: {:error, any} | {:ok, <<_::192>>}
