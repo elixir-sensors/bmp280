@@ -15,12 +15,17 @@ defmodule BMP280.MixProject do
       dialyzer: dialyzer(),
       docs: docs(),
       package: package(),
-      description: description(),
-      preferred_cli_env: %{
+      description: description()
+    ]
+  end
+
+  def cli do
+    [
+      preferred_envs: %{
+        dialyzer: :lint,
         docs: :docs,
         "hex.publish": :docs,
         "hex.build": :docs,
-        dialyzer: :lint,
         credo: :lint
       }
     ]
