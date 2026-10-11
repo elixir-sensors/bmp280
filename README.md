@@ -1,8 +1,9 @@
 # BMP280
 
 [![Hex version](https://img.shields.io/hexpm/v/bmp280.svg "Hex version")](https://hex.pm/packages/bmp280)
-[![API docs](https://img.shields.io/hexpm/v/bmp280.svg?label=hexdocs "API docs")](https://bmp280.hexdocs.pm/SHT4X.html)
-[![CircleCI](https://circleci.com/gh/elixir-sensors/bmp280.svg?style=svg)](https://circleci.com/gh/elixir-sensors/bmp280)
+[![API docs](https://img.shields.io/hexpm/v/bmp280.svg?label=hexdocs "API docs")](https://bmp280.hexdocs.pm/BMP280.html)
+[![Nerves compatibility](https://compatibility.nerves-project.org/badge/bmp280.svg)](https://compatibility.nerves-project.org/packages/bmp280)
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/elixir-sensors/bmp280/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/elixir-sensors/bmp280/tree/main)
 [![REUSE status](https://api.reuse.software/badge/github.com/elixir-sensors/bmp280)](https://api.reuse.software/info/github.com/elixir-sensors/bmp280)
 
 Read temperature and pressure from Bosch
